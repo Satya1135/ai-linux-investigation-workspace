@@ -119,7 +119,13 @@ Run the backend test suite using `pytest`:
 pytest -v backend/tests
 ```
 
-All health check tests and ASGI transport tests will execute and validate the `/health` and root endpoints.
+All health check, evidence service unit tests, and evidence API integration tests will execute and validate the `/health` endpoint as well as the `/api/v1/evidence/*` endpoints.
+
+```bash
+# Run specific test suites:
+pytest -v backend/tests/unit/test_evidence_service.py
+pytest -v backend/tests/integration/test_evidence_api.py
+```
 
 ### Frontend Typecheck & Build Verification
 
@@ -128,3 +134,13 @@ cd frontend
 npm run build
 ```
 This runs TypeScript checking (`tsc`) followed by Vite production bundling.
+
+### Automated End-to-End API Integration Verification
+
+With the backend running on port 8000, verify all frontend intake contracts (sample loading, .log/.txt upload, raw paste, oversized and empty validation rejections):
+
+```bash
+node scripts/verify_frontend_api.mjs
+```
+
+

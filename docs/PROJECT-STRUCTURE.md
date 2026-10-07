@@ -47,7 +47,9 @@ ai-linux-investigation-workspace/
 │       │       └── Sidebar.module.css   # Dark cybersecurity sidebar styling
 │       ├── pages/
 │       │   ├── Dashboard.tsx            # Main workspace overview & architecture matrix
-│       │   └── Dashboard.module.css     # Metric cards, grid layout, chips, and table styles
+│       │   ├── Dashboard.module.css     # Metric cards, grid layout, chips, and table styles
+│       │   ├── EvidenceIntake.tsx       # Day 4: Evidence intake (Sample, Upload, Paste, Preview, Raw Text)
+│       │   └── EvidenceIntake.module.css # Cybersecurity styling for intake panels & event viewer
 │       ├── hooks/                       # Custom React hooks (Day 4+)
 │       ├── services/
 │       │   └── api.ts                   # API client, configurable base URL, /health fetcher
@@ -58,7 +60,7 @@ ai-linux-investigation-workspace/
 │           └── global.css               # CSS reset, typography, and scrollbar styling
 │
 ├── backend/                             # Python FastAPI service
-│   ├── requirements.txt                 # Backend dependencies (fastapi, uvicorn, pydantic, etc.)
+│   ├── requirements.txt                 # Backend dependencies (fastapi, uvicorn, pydantic, python-multipart, etc.)
 │   ├── app/
 │   │   ├── __init__.py                  # App package initialization
 │   │   ├── main.py                      # FastAPI app instance, CORS middleware, router registration
@@ -66,20 +68,24 @@ ai-linux-investigation-workspace/
 │   │   │   ├── __init__.py
 │   │   │   └── routes/
 │   │   │       ├── __init__.py          # Routes package exporter
-│   │   │       └── health.py            # GET /health endpoint returning {"status": "ok"}
+│   │   │       ├── health.py            # GET /health endpoint returning {"status": "ok"}
+│   │   │       └── evidence.py          # Evidence intake endpoints (/paste, /upload, /sample, /samples)
 │   │   ├── core/
 │   │   │   ├── __init__.py
 │   │   │   └── config.py                # Pydantic Settings reading .env and environment variables
 │   │   ├── models/                      # Database models (Day 4+)
 │   │   │   └── __init__.py
-│   │   ├── schemas/                     # Pydantic validation schemas (Day 4+)
-│   │   │   └── __init__.py
+│   │   ├── schemas/                     # Pydantic validation schemas
+│   │   │   ├── __init__.py              # Schema exports
+│   │   │   └── evidence.py              # Evidence schemas (Intake, Metadata, Event Candidates, Responses)
 │   │   ├── services/
 │   │   │   ├── __init__.py
 │   │   │   ├── cases/                   # Case management business logic (Day 4+)
 │   │   │   │   └── __init__.py
-│   │   │   ├── evidence/                # Evidence artifact ingestion logic (Day 4+)
-│   │   │   │   └── __init__.py
+│   │   │   ├── evidence/                # Evidence intake & normalization service
+│   │   │   │   ├── __init__.py          # Service and exceptions export
+│   │   │   │   ├── service.py           # EvidenceService, safe normalization, timestamp extraction
+│   │   │   │   └── exceptions.py        # Evidence domain exceptions
 │   │   │   ├── investigation/           # Malware & Priv-Esc detection engines (Day 5+)
 │   │   │   │   └── __init__.py
 │   │   │   ├── ai/                      # Anthropic Claude prompt orchestration (Day 7+)
@@ -91,20 +97,26 @@ ai-linux-investigation-workspace/
 │   └── tests/                           # Pytest testing suite
 │       ├── __init__.py
 │       ├── fixtures/                    # Test data fixtures (.gitkeep)
-│       ├── integration/                 # Integration tests (.gitkeep)
+│       ├── integration/                 # Integration tests
+│       │   ├── __init__.py
+│       │   └── test_evidence_api.py     # API integration tests (/api/v1/evidence/*)
 │       └── unit/
 │           ├── __init__.py
-│           └── test_health.py           # Unit tests for /health, /api/v1/health, /, and async client
+│           ├── test_health.py           # Unit tests for /health, /api/v1/health, /, and async client
+│           └── test_evidence_service.py # Unit tests for EvidenceService, safety, and normalization
 │
 ├── docs/                                # Project documentation
 │   ├── SETUP.md                         # Detailed developer installation and execution instructions
 │   ├── ENVIRONMENT.md                   # Environment variables specification
 │   ├── PROJECT-STRUCTURE.md             # This document
-│   └── DAY3-SUMMARY.md                  # Comprehensive summary of Day 3 accomplishments
+│   ├── DAY3-SUMMARY.md                  # Comprehensive summary of Day 3 accomplishments
+│   ├── DAY4-EVIDENCE-INTAKE.md          # Architecture and validation spec for Day 4 Evidence Intake
+│   └── DAY4-FINAL-VERIFICATION.md       # Final verification checklist and Day 4 completion record
 │
 ├── sample-data/                         # Sample datasets and logs for testing
 │   └── linux/                           # Raw Linux logs (syslog, auth.log, cron, auditd)
-│       └── .gitkeep
+│       ├── .gitkeep
+│       └── sample-privilege-escalation.log # Synthetic privilege escalation security incident log
 │
 └── scripts/                             # Utility and operational scripts
     └── .gitkeep

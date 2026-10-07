@@ -33,10 +33,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
     },
     {
       id: 'evidence' as NavSection,
-      label: 'Evidence Ingestion',
+      label: 'Evidence Intake',
       icon: Terminal,
-      badge: 'Day 4',
-      disabled: true,
+      badge: 'Active',
+      disabled: false,
     },
     {
       id: 'investigation' as NavSection,

@@ -84,3 +84,7 @@ For Day 4, the roadmap transitions to data persistence, case lifecycle managemen
    - Basic Linux log format validators (auth.log, syslog, cron).
 4. **Frontend Integration**:
    - Wire TanStack Query hooks to live case listing and case creation modal.
+
+> [!NOTE]
+> Milestone 1 of Day 4 (Backend Evidence Intake) is documented in [`DAY4-EVIDENCE-INTAKE.md`](file:///e:/PROJECTS/ai-linux-investigation-workspace/docs/DAY4-EVIDENCE-INTAKE.md).
+

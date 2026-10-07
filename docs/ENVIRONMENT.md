@@ -44,6 +44,15 @@ The backend uses `pydantic-settings` to automatically validate and load environm
 | `ANTHROPIC_API_KEY` | string | `""` | Anthropic Claude API Key (Backend only) |
 | `ANTHROPIC_MODEL` | string | `claude-3-5-sonnet-20241022` | Configurable model identifier for Claude |
 
+### Evidence Intake Operational Constants
+
+The evidence intake service enforces strict security thresholds configured in the backend runtime:
+- **Maximum Payload Size**: 5 MB (`5,242,880` bytes)
+- **Permitted File Extensions**: `.log`, `.txt` (case-insensitive)
+- **Disallowed Executables/Scripts**: `.exe`, `.bat`, `.cmd`, `.ps1`, `.sh`, `.py`, `.js`, `.zip`, arbitrary binary files
+- **Input Type Boundaries**: Plain-text logs only; binary contents (null bytes) are rejected immediately.
+
+
 ---
 
 ## Frontend Environment Variables

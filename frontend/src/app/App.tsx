@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Header } from '../components/common/Header';
 import { Sidebar } from '../components/common/Sidebar';
 import { Dashboard } from '../pages/Dashboard';
+import { EvidenceIntake } from '../pages/EvidenceIntake';
 import { CasesPlaceholder } from '../components/cases/CasesPlaceholder';
 import { NavSection } from '../types';
 import styles from './App.module.css';
@@ -25,7 +26,8 @@ export const AppContent: React.FC = () => {
       <div className={styles.mainBody}>
         <Sidebar currentTab={currentTab} onSelectTab={setCurrentTab} />
         <main className={styles.mainContent}>
-          {currentTab === 'dashboard' && <Dashboard />}
+          {currentTab === 'dashboard' && <Dashboard onNavigate={setCurrentTab} />}
+          {currentTab === 'evidence' && <EvidenceIntake />}
           {currentTab === 'cases' && (
             <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
               <CasesPlaceholder />
