@@ -11,6 +11,13 @@ from backend.app.schemas.evidence import (
     EvidenceResponse,
     EvidenceErrorResponse,
 )
+from backend.app.schemas.timeline import (
+    AttackStage,
+    EventSeverity,
+    TimelineEvent,
+    TimelineRequest,
+    TimelineResponse,
+)
 
 __all__ = [
     "EvidenceSourceType",
@@ -20,4 +27,9 @@ __all__ = [
     "EvidenceMetadata",
     "EvidenceResponse",
     "EvidenceErrorResponse",
+    "AttackStage",
+    "EventSeverity",
+    "TimelineEvent",
+    "TimelineRequest",
+    "TimelineResponse",
 ]

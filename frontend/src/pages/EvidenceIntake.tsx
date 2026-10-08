@@ -50,7 +50,11 @@ interface ParsedSocEvent {
   raw: string;
 }
 
-export const EvidenceIntake: React.FC = () => {
+interface EvidenceIntakeProps {
+  onNavigateToTimeline?: (events: LogEventCandidate[]) => void;
+}
+
+export const EvidenceIntake: React.FC<EvidenceIntakeProps> = ({ onNavigateToTimeline }) => {
   const [selectedMode, setSelectedMode] = useState<IntakeMode>('sample');
   const [evidence, setEvidence] = useState<EvidenceResponse | null>(null);
 
@@ -863,14 +867,26 @@ export const EvidenceIntake: React.FC = () => {
               <CheckCircle2 size={16} color="var(--accent-emerald)" />
               <span>Evidence validated, SHA-256 hashed, and normalized. Ready for downstream investigation.</span>
             </div>
-            <button
-              type="button"
-              className={styles.tacticalBtnSecondary}
-              onClick={handleReset}
-            >
-              <RotateCcw size={14} />
-              <span>INGEST DIFFERENT EVIDENCE</span>
-            </button>
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+              <button
+                type="button"
+                className={styles.tacticalBtnSecondary}
+                onClick={handleReset}
+              >
+                <RotateCcw size={14} />
+                <span>INGEST DIFFERENT EVIDENCE</span>
+              </button>
+              {onNavigateToTimeline && (
+                <button
+                  type="button"
+                  className={styles.tacticalBtnPrimary}
+                  onClick={() => onNavigateToTimeline(evidence.normalized_events)}
+                >
+                  <span>PROCEED TO TIMELINE</span>
+                  <ArrowRight size={14} />
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

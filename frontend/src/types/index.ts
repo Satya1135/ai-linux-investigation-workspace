@@ -66,6 +66,63 @@ export interface EvidenceResponse {
 }
 
 /**
+ * Attack stage classification vocabulary.
+ */
+export type AttackStage =
+  | 'AUTHENTICATION'
+  | 'RECONNAISSANCE'
+  | 'PRIVILEGE_DISCOVERY'
+  | 'PRIVILEGE_ESCALATION'
+  | 'EXECUTION'
+  | 'PERSISTENCE'
+  | 'POST_EXPLOITATION'
+  | 'OTHER';
+
+/**
+ * Standardized event severity levels.
+ */
+export type EventSeverity = 'INFO' | 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+/**
+ * Structured timeline event with deterministic classification and traceability.
+ */
+export interface TimelineEvent {
+  event_id: string;
+  timestamp: string | null;
+  host: string | null;
+  process: string | null;
+  event_type: string;
+  message: string;
+  raw_message: string;
+  original_event_index: number;
+  source_line_start: number | null;
+  source_line_end: number | null;
+  suspicious: boolean;
+  severity: EventSeverity;
+  attack_stage: AttackStage;
+  highlight_reason: string | null;
+  classification_method: string;
+}
+
+/**
+ * Timeline request payload.
+ */
+export interface TimelineRequest {
+  events: LogEventCandidate[];
+}
+
+/**
+ * Timeline response structure from /api/v1/timeline/analyze.
+ */
+export interface TimelineResponse {
+  event_count: number;
+  suspicious_count: number;
+  stages_detected: AttackStage[];
+  timeline: TimelineEvent[];
+  classification_method: string;
+}
+
+/**
  * Backend API error response structure.
  */
 export interface ApiErrorDetail {

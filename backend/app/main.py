@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.app.core.config import settings
 from backend.app.api.routes.health import router as health_router
 from backend.app.api.routes.evidence import router as evidence_router
+from backend.app.api.routes.timeline import router as timeline_router
 from backend.app.services.evidence.exceptions import EvidenceException
 from fastapi.responses import JSONResponse
 
@@ -40,6 +41,9 @@ app.include_router(health_router, prefix=settings.API_V1_STR)
 
 # Mount evidence intake routes under /api/v1
 app.include_router(evidence_router, prefix=settings.API_V1_STR)
+
+# Mount timeline investigation routes under /api/v1
+app.include_router(timeline_router, prefix=settings.API_V1_STR)
 
 
 @app.get("/", tags=["root"])

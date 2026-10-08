@@ -4,8 +4,9 @@ import { Header } from '../components/common/Header';
 import { Sidebar } from '../components/common/Sidebar';
 import { Dashboard } from '../pages/Dashboard';
 import { EvidenceIntake } from '../pages/EvidenceIntake';
+import { InvestigationTimeline } from '../pages/InvestigationTimeline';
 import { CasesPlaceholder } from '../components/cases/CasesPlaceholder';
-import { NavSection } from '../types';
+import { NavSection, LogEventCandidate } from '../types';
 import styles from './App.module.css';
 
 const queryClient = new QueryClient({
@@ -19,6 +20,12 @@ const queryClient = new QueryClient({
 
 export const AppContent: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<NavSection>('dashboard');
+  const [activeEvidenceEvents, setActiveEvidenceEvents] = useState<LogEventCandidate[] | undefined>(undefined);
+
+  const handleNavigateToTimelineWithEvents = (events: LogEventCandidate[]) => {
+    setActiveEvidenceEvents(events);
+    setCurrentTab('investigation');
+  };
 
   return (
     <div className={styles.layout}>
@@ -27,10 +34,20 @@ export const AppContent: React.FC = () => {
         <Sidebar currentTab={currentTab} onSelectTab={setCurrentTab} />
         <main className={styles.mainContent}>
           {currentTab === 'dashboard' && <Dashboard onNavigate={setCurrentTab} />}
-          {currentTab === 'evidence' && <EvidenceIntake />}
+          {currentTab === 'evidence' && (
+            <EvidenceIntake
+              onNavigateToTimeline={handleNavigateToTimelineWithEvents}
+            />
+          )}
+          {currentTab === 'investigation' && (
+            <InvestigationTimeline
+              onNavigate={setCurrentTab}
+              incomingEvents={activeEvidenceEvents}
+            />
+          )}
           {currentTab === 'cases' && (
             <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
-              <CasesPlaceholder />
+              <CasesPlaceholder onNavigate={setCurrentTab} />
             </div>
           )}
         </main>

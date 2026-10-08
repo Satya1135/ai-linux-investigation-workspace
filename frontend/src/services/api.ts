@@ -1,6 +1,8 @@
 import {
   HealthStatus,
   EvidenceResponse,
+  LogEventCandidate,
+  TimelineResponse,
 } from '../types';
 
 /**
@@ -166,6 +168,72 @@ export async function listSamples(): Promise<{ samples: string[] }> {
       headers: {
         Accept: 'application/json',
       },
+    });
+
+    if (!response.ok) {
+      const msg = await parseErrorResponse(response);
+      throw new Error(msg);
+    }
+
+    return await response.json();
+  } catch (error: unknown) {
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error(`Backend service is unreachable at ${API_BASE_URL}. Verify backend server is running.`);
+    }
+    throw error;
+  }
+}
+
+/**
+ * Construct chronological investigation timeline from normalized candidate events.
+ * Calls POST /api/v1/timeline/analyze.
+ */
+export async function analyzeTimeline(
+  events: LogEventCandidate[]
+): Promise<TimelineResponse> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/timeline/analyze`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        events,
+      }),
+    });
+
+    if (!response.ok) {
+      const msg = await parseErrorResponse(response);
+      throw new Error(msg);
+    }
+
+    return await response.json();
+  } catch (error: unknown) {
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error(`Backend service is unreachable at ${API_BASE_URL}. Verify backend server is running.`);
+    }
+    throw error;
+  }
+}
+
+/**
+ * Construct timeline directly from a pre-packaged sample scenario.
+ * Calls POST /api/v1/timeline/sample.
+ */
+export async function analyzeSampleTimeline(
+  sampleName: string = 'sample-privilege-escalation.log'
+): Promise<TimelineResponse> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/timeline/sample`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        sample_name: sampleName,
+      }),
     });
 
     if (!response.ok) {

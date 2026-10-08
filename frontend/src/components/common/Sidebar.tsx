@@ -37,15 +37,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
       id: 'investigation' as NavSection,
       label: 'Investigation Timeline',
       icon: Clock,
-      badge: 'Day 5+',
-      disabled: true,
+      badge: 'Live',
+      disabled: false,
     },
     {
       id: 'cases' as NavSection,
       label: 'AI Analysis',
       icon: Cpu,
       badge: 'Day 6+',
-      disabled: false,
+      disabled: true,
     },
     {
       id: 'reports' as NavSection,
@@ -110,7 +110,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
             </div>
             <div className={styles.specRow}>
               <span>ENGINE:</span>
-              <code>ANTHROPIC CLAUDE</code>
+              <code>DETERMINISTIC SOC (D5)</code>
             </div>
             <div className={styles.specRow}>
               <span>INTEGRITY:</span>
