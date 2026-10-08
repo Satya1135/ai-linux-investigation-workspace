@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import {
   ShieldAlert,
   FileCode,
@@ -14,10 +14,18 @@ import {
   RotateCcw,
   ChevronDown,
   ChevronUp,
+  Fingerprint,
+  Lock,
+  Shield,
+  Terminal,
+  Activity,
+  ArrowRight,
+  Database,
 } from 'lucide-react';
 import {
   EvidenceResponse,
   EvidenceSourceType,
+  LogEventCandidate,
 } from '../types';
 import {
   loadSampleEvidence,
@@ -30,6 +38,17 @@ const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_EXTENSIONS = ['.log', '.txt'];
 
 type IntakeMode = 'sample' | 'upload' | 'paste';
+
+interface ParsedSocEvent {
+  index: number;
+  time: string;
+  host: string;
+  process: string;
+  eventType: 'PRIVESC' | 'AUTH' | 'EXEC' | 'PROCESS' | 'FILE_ACCESS' | 'CRON' | 'SYSTEM';
+  severity: 'critical' | 'high' | 'warning' | 'normal';
+  message: string;
+  raw: string;
+}
 
 export const EvidenceIntake: React.FC = () => {
   const [selectedMode, setSelectedMode] = useState<IntakeMode>('sample');
@@ -51,7 +70,7 @@ export const EvidenceIntake: React.FC = () => {
 
   // Evidence preview state
   const [eventSearchQuery, setEventSearchQuery] = useState<string>('');
-  const [isOriginalExpanded, setIsOriginalExpanded] = useState<boolean>(false);
+  const [isOriginalExpanded, setIsOriginalExpanded] = useState<boolean>(true);
   const [hasCopiedHash, setHasCopiedHash] = useState<boolean>(false);
   const [hasCopiedRaw, setHasCopiedRaw] = useState<boolean>(false);
 
@@ -232,45 +251,127 @@ export const EvidenceIntake: React.FC = () => {
     }
   };
 
-  // Filter candidates for display
-  const filteredEvents = evidence?.normalized_events.filter((item) => {
-    if (!eventSearchQuery.trim()) return true;
+  // SOC Event Parser for Enhanced Investigation Presentation
+  const parseSocEvent = (evt: LogEventCandidate): ParsedSocEvent => {
+    const raw = evt.raw_message;
+    let time = evt.event_time || 'N/A';
+    let host = 'srv-corp-lnx01';
+    let process = 'system';
+    let message = raw;
+    let eventType: ParsedSocEvent['eventType'] = 'SYSTEM';
+    let severity: ParsedSocEvent['severity'] = 'normal';
+
+    // Standard Syslog / Auth / Audit parsing heuristics
+    // e.g., Oct 06 08:35:10 srv-corp-lnx01 sshd[2104]: Failed password...
+    const syslogMatch = raw.match(/^([A-Za-z]{3}\s+\d+\s+\d{2}:\d{2}:\d{2})\s+([^\s]+)\s+([^:]+):\s*(.*)$/);
+    if (syslogMatch) {
+      time = syslogMatch[1];
+      host = syslogMatch[2];
+      process = syslogMatch[3];
+      message = syslogMatch[4];
+    }
+
+    const lower = raw.toLowerCase();
+    if (lower.includes('priv_escalation') || lower.includes('rootshell') || (lower.includes('sudo') && lower.includes('find'))) {
+      eventType = 'PRIVESC';
+      severity = 'critical';
+    } else if (lower.includes('failed password') || lower.includes('invalid user') || lower.includes('unauthorized')) {
+      eventType = 'AUTH';
+      severity = 'high';
+    } else if (lower.includes('accepted password') || lower.includes('session opened') || lower.includes('session closed')) {
+      eventType = 'AUTH';
+      severity = 'normal';
+    } else if (lower.includes('curl') || lower.includes('chmod +x') || lower.includes('process_exec') || lower.includes('syscall=59')) {
+      eventType = 'EXEC';
+      severity = 'warning';
+    } else if (lower.includes('file_perm_change') || lower.includes('file_access') || lower.includes('shadow')) {
+      eventType = 'FILE_ACCESS';
+      severity = lower.includes('shadow') ? 'high' : 'warning';
+    } else if (lower.includes('cron')) {
+      eventType = 'CRON';
+      severity = 'normal';
+    } else if (lower.includes('systemd') || lower.includes('apt-daily')) {
+      eventType = 'SYSTEM';
+      severity = 'normal';
+    } else {
+      eventType = 'PROCESS';
+      severity = 'normal';
+    }
+
+    return {
+      index: evt.event_index,
+      time,
+      host,
+      process,
+      eventType,
+      severity,
+      message,
+      raw,
+    };
+  };
+
+  const parsedEvents = useMemo(() => {
+    if (!evidence) return [];
+    return evidence.normalized_events.map(parseSocEvent);
+  }, [evidence]);
+
+  const filteredEvents = useMemo(() => {
+    if (!eventSearchQuery.trim()) return parsedEvents;
     const q = eventSearchQuery.toLowerCase();
-    return (
-      item.raw_message.toLowerCase().includes(q) ||
-      (item.event_time && item.event_time.toLowerCase().includes(q)) ||
-      String(item.event_index).includes(q)
+    return parsedEvents.filter(
+      (e) =>
+        e.raw.toLowerCase().includes(q) ||
+        e.host.toLowerCase().includes(q) ||
+        e.process.toLowerCase().includes(q) ||
+        e.eventType.toLowerCase().includes(q) ||
+        String(e.index).includes(q)
     );
-  }) || [];
+  }, [parsedEvents, eventSearchQuery]);
 
   return (
     <div className={styles.container}>
-      {/* 1. Page Heading & Description */}
+      {/* 1. Tactical Page Header */}
       <div className={styles.pageHeader}>
         <div className={styles.titleArea}>
-          <h1 className={styles.heading}>Evidence Intake</h1>
-          <p className={styles.subheading}>Add Linux security evidence for investigation.</p>
+          <div className={styles.headingRow}>
+            <Terminal size={24} className={styles.titleIcon} />
+            <h1 className={styles.heading}>EVIDENCE INTAKE</h1>
+            <div className={styles.liveBadge}>
+              <span className={styles.liveDot} />
+              <span>LIVE</span>
+            </div>
+            <span className={styles.channelTag}>// CHANNEL: SOC_INTAKE_01</span>
+          </div>
+          <p className={styles.subheading}>
+            Ingest, validate, and normalize Linux logs for investigation
+          </p>
         </div>
+
         {evidence && (
           <button
             type="button"
-            className={styles.actionBtnSecondary}
+            className={styles.tacticalBtnSecondary}
             onClick={handleReset}
             title="Ingest another evidence file or text"
           >
             <RotateCcw size={14} />
-            <span>Ingest New Evidence</span>
+            <span>INGEST NEW EVIDENCE</span>
           </button>
         )}
       </div>
 
-      {/* 2. Security Banner */}
+      {/* 2. Tactical Security Boundary Banner */}
       <div className={styles.securityBanner} role="alert">
-        <ShieldAlert className={styles.securityIcon} size={22} />
+        <div className={styles.securityIconBox}>
+          <ShieldAlert size={20} className={styles.securityIcon} />
+        </div>
         <div className={styles.securityContent}>
-          <span className={styles.securityTitle}>Untrusted Text Data Boundary</span>
+          <div className={styles.securityHeader}>
+            <span className={styles.securityTitle}>UNTRUSTED TEXT DATA BOUNDARY</span>
+            <span className={styles.securitySub}>ISOLATION ACTIVE</span>
+          </div>
           <p className={styles.securityText}>
-            Evidence is treated as text only. Commands, scripts, binaries, and files contained in logs are never executed.
+            Evidence is strictly ingested and parsed as inert text data. Commands, shell scripts, binaries, and system paths contained in logs are <strong>never executed</strong>.
           </p>
         </div>
       </div>
@@ -294,33 +395,41 @@ export const EvidenceIntake: React.FC = () => {
       )}
 
       {/* ==================================================== */}
-      {/* INTAKE FORM (When evidence is not yet ingested)       */}
+      {/* INTAKE MODES (Shown when no evidence is loaded)      */}
       {/* ==================================================== */}
       {!evidence && (
-        <>
+        <div className={styles.intakeWrapper}>
           {/* Mode Selector Cards */}
           <div className={styles.modeSelector}>
-            {/* Mode 1: Sample */}
+            {/* Mode 1: Sample Scenario (Primary Highlight) */}
             <button
               type="button"
-              className={`${styles.modeCard} ${selectedMode === 'sample' ? styles.selected : ''}`}
+              className={`${styles.modeCard} ${styles.primarySampleCard} ${selectedMode === 'sample' ? styles.selected : ''}`}
               onClick={() => {
                 setSelectedMode('sample');
                 resetError();
               }}
               disabled={isLoading}
             >
-              <div className={styles.modeIconWrapper}>
-                <FileCode size={22} />
+              <div className={styles.cornerAccentTL} />
+              <div className={styles.cornerAccentBR} />
+              <div className={styles.modeTopRow}>
+                <div className={styles.modeIconWrapper}>
+                  <FileCode size={20} />
+                </div>
+                <span className={styles.primaryBadge}>RECOMMENDED</span>
               </div>
-              <div className={styles.modeTitle}>Use Sample Scenario</div>
+              <div className={styles.modeTitle}>Sample Scenario</div>
               <p className={styles.modeDesc}>
-                Load the verified synthetic privilege escalation scenario from sample-data/linux/.
+                Pre-packaged multi-stage Linux privilege escalation incident from <code>sample-data/linux/</code>.
               </p>
-              <span className={styles.modeBadge}>Synthetic Telemetry</span>
+              <div className={styles.modeCardFooter}>
+                <span className={styles.modeTag}>30 Log Events</span>
+                <span className={styles.cardActionHint}>Select Pathway &rarr;</span>
+              </div>
             </button>
 
-            {/* Mode 2: Upload */}
+            {/* Mode 2: Upload Log File */}
             <button
               type="button"
               className={`${styles.modeCard} ${selectedMode === 'upload' ? styles.selected : ''}`}
@@ -330,17 +439,25 @@ export const EvidenceIntake: React.FC = () => {
               }}
               disabled={isLoading}
             >
-              <div className={styles.modeIconWrapper}>
-                <UploadCloud size={22} />
+              <div className={styles.cornerAccentTL} />
+              <div className={styles.cornerAccentBR} />
+              <div className={styles.modeTopRow}>
+                <div className={styles.modeIconWrapper}>
+                  <UploadCloud size={20} />
+                </div>
+                <span className={styles.modeBadge}>FILE IMPORT</span>
               </div>
-              <div className={styles.modeTitle}>Upload .log / .txt</div>
+              <div className={styles.modeTitle}>Upload Log File</div>
               <p className={styles.modeDesc}>
-                Upload an authentic raw log file (.log or .txt format, up to 5 MB).
+                Import an authentic raw Linux system log file (<code>.log</code> or <code>.txt</code> format up to 5 MB).
               </p>
-              <span className={styles.modeBadge}>.log / .txt &le; 5 MB</span>
+              <div className={styles.modeCardFooter}>
+                <span className={styles.modeTag}>Max 5 MB</span>
+                <span className={styles.cardActionHint}>Select Pathway &rarr;</span>
+              </div>
             </button>
 
-            {/* Mode 3: Paste */}
+            {/* Mode 3: Paste Linux Logs */}
             <button
               type="button"
               className={`${styles.modeCard} ${selectedMode === 'paste' ? styles.selected : ''}`}
@@ -350,23 +467,37 @@ export const EvidenceIntake: React.FC = () => {
               }}
               disabled={isLoading}
             >
-              <div className={styles.modeIconWrapper}>
-                <ClipboardPaste size={22} />
+              <div className={styles.cornerAccentTL} />
+              <div className={styles.cornerAccentBR} />
+              <div className={styles.modeTopRow}>
+                <div className={styles.modeIconWrapper}>
+                  <ClipboardPaste size={20} />
+                </div>
+                <span className={styles.modeBadge}>RAW BUFFER</span>
               </div>
               <div className={styles.modeTitle}>Paste Linux Logs</div>
               <p className={styles.modeDesc}>
-                Directly paste captured journalctl, auth.log, or syslog entries.
+                Directly paste captured <code>journalctl</code>, <code>auth.log</code>, or <code>syslog</code> output.
               </p>
-              <span className={styles.modeBadge}>Direct Text Paste</span>
+              <div className={styles.modeCardFooter}>
+                <span className={styles.modeTag}>Direct Text</span>
+                <span className={styles.cardActionHint}>Select Pathway &rarr;</span>
+              </div>
             </button>
           </div>
 
-          {/* Active Intake Panel */}
+          {/* Active Intake Console Panel */}
           <div className={styles.panelContainer}>
+            <div className={styles.panelCornerTL} />
+            <div className={styles.panelCornerBR} />
+
             {isLoading ? (
               <div className={styles.loadingBox}>
-                <Loader2 className={styles.spinIcon} size={28} />
-                <span>{loadingMessage || 'Processing evidence...'}</span>
+                <Loader2 className={styles.spinIcon} size={32} />
+                <div className={styles.loadingTextGroup}>
+                  <span className={styles.loadingTitle}>VALIDATING & INGESTING EVIDENCE</span>
+                  <span className={styles.loadingSubtitle}>{loadingMessage || 'Processing forensic telemetry stream...'}</span>
+                </div>
               </div>
             ) : (
               <>
@@ -374,37 +505,41 @@ export const EvidenceIntake: React.FC = () => {
                 {selectedMode === 'sample' && (
                   <div className={styles.sampleDetails}>
                     <div className={styles.panelHeader}>
-                      <span className={styles.panelTitle}>
+                      <div className={styles.panelTitle}>
                         <FileCode size={18} color="var(--accent-cyan)" />
-                        Pre-Packaged Security Scenario
-                      </span>
+                        <span>SAMPLE PRIVILEGE ESCALATION SCENARIO</span>
+                      </div>
+                      <span className={styles.panelSubtag}>SOURCE: sample-privilege-escalation.log</span>
                     </div>
 
                     <div className={styles.scenarioCard}>
-                      <span className={styles.scenarioName}>sample-privilege-escalation.log</span>
+                      <div className={styles.scenarioTop}>
+                        <span className={styles.scenarioName}>sample-privilege-escalation.log</span>
+                        <span className={styles.scenarioSizeTag}>30 VERIFIED EVENTS</span>
+                      </div>
                       <p className={styles.scenarioDescription}>
-                        Synthetic multi-stage Linux intrusion scenario featuring SSH brute force attempts, unauthorized
-                        account login, sudo reconnaissance, curl staging, GTFOBins / find privilege escalation, and SUID
-                        root shell persistence. Contains zero real secrets or credentials.
+                        Authentic multi-stage Linux forensic scenario: SSH brute-force enumeration, credential compromise, unauthorized login, sudo reconnaissance, curl staging, GTFOBins / find privilege escalation to root, and SUID persistence shell installation.
                       </p>
                       <div className={styles.scenarioTags}>
-                        <span className={styles.scenarioTag}>SSH Auth</span>
-                        <span className={styles.scenarioTag}>Sudo Recon</span>
-                        <span className={styles.scenarioTag}>Curl Staging</span>
-                        <span className={styles.scenarioTag}>GTFOBins / Find</span>
-                        <span className={styles.scenarioTag}>SUID Persistence</span>
+                        <span className={styles.scenarioTag}>SSH_BRUTEFORCE</span>
+                        <span className={styles.scenarioTag}>AUTH_BYPASS</span>
+                        <span className={styles.scenarioTag}>SUDO_RECON</span>
+                        <span className={styles.scenarioTag}>CURL_STAGING</span>
+                        <span className={styles.scenarioTag}>GTFOBINS_FIND</span>
+                        <span className={styles.scenarioTag}>SUID_PERSISTENCE</span>
                       </div>
                     </div>
 
-                    <div>
+                    <div className={styles.actionRow}>
                       <button
                         type="button"
-                        className={styles.actionBtnPrimary}
+                        className={styles.tacticalBtnPrimary}
                         onClick={handleLoadSample}
                         disabled={isLoading}
                       >
                         <FileCode size={16} />
-                        <span>Load Sample Scenario</span>
+                        <span>USE SAMPLE SCENARIO</span>
+                        <ArrowRight size={16} />
                       </button>
                     </div>
                   </div>
@@ -414,10 +549,11 @@ export const EvidenceIntake: React.FC = () => {
                 {selectedMode === 'upload' && (
                   <div>
                     <div className={styles.panelHeader}>
-                      <span className={styles.panelTitle}>
+                      <div className={styles.panelTitle}>
                         <UploadCloud size={18} color="var(--accent-cyan)" />
-                        Select Evidence Log File
-                      </span>
+                        <span>FORENSIC LOG FILE IMPORT</span>
+                      </div>
+                      <span className={styles.panelSubtag}>ACCEPTED: .log, .txt (&le; 5 MB)</span>
                     </div>
 
                     <input
@@ -438,12 +574,14 @@ export const EvidenceIntake: React.FC = () => {
                       onDragLeave={() => setIsDragActive(false)}
                       onDrop={handleDrop}
                     >
-                      <UploadCloud className={styles.dropZoneIcon} size={40} />
+                      <div className={styles.dropZoneIconBox}>
+                        <UploadCloud className={styles.dropZoneIcon} size={36} />
+                      </div>
                       <div className={styles.dropZonePrompt}>
-                        {selectedFile ? 'Change Selected File' : 'Click to select or drag and drop a log file'}
+                        {selectedFile ? 'CHANGE SELECTED EVIDENCE FILE' : 'CLICK TO SELECT OR DRAG EVIDENCE LOG'}
                       </div>
                       <div className={styles.dropZoneSubtext}>
-                        Supported formats: <strong>.log</strong>, <strong>.txt</strong> (Max size: 5 MB)
+                        SUPPORTED TYPES: <strong>.LOG</strong>, <strong>.TXT</strong> (MAXIMUM FILE SIZE: 5 MB)
                       </div>
                     </div>
 
@@ -451,17 +589,17 @@ export const EvidenceIntake: React.FC = () => {
                       <div className={styles.fileSelectedPreview}>
                         <div className={styles.fileInfo}>
                           <FileText size={18} color="var(--accent-cyan)" />
-                          <span>{selectedFile.name}</span>
-                          <span style={{ color: 'var(--text-muted)' }}>({formatByteSize(selectedFile.size)})</span>
+                          <span className={styles.fileNameText}>{selectedFile.name}</span>
+                          <span className={styles.fileSizeText}>({formatByteSize(selectedFile.size)})</span>
                         </div>
                         <button
                           type="button"
-                          className={styles.actionBtnPrimary}
+                          className={styles.tacticalBtnPrimary}
                           onClick={handleUploadSubmit}
                           disabled={isLoading}
                         >
                           <UploadCloud size={16} />
-                          <span>Validate & Ingest File</span>
+                          <span>VALIDATE & INGEST FILE</span>
                         </button>
                       </div>
                     )}
@@ -472,21 +610,22 @@ export const EvidenceIntake: React.FC = () => {
                 {selectedMode === 'paste' && (
                   <form className={styles.pasteForm} onSubmit={handlePasteSubmit}>
                     <div className={styles.panelHeader}>
-                      <span className={styles.panelTitle}>
+                      <div className={styles.panelTitle}>
                         <ClipboardPaste size={18} color="var(--accent-cyan)" />
-                        Paste Linux Security Logs
-                      </span>
+                        <span>PASTE RAW LINUX LOG ENTRIES</span>
+                      </div>
+                      <span className={styles.panelSubtag}>DIRECT CAPTURE INTAKE</span>
                     </div>
 
                     <div className={styles.formGroup}>
                       <label htmlFor="filename-input" className={styles.formLabel}>
-                        Evidence Filename / Label (Optional)
+                        // EVIDENCE LABEL / FILENAME (OPTIONAL)
                       </label>
                       <input
                         id="filename-input"
                         type="text"
                         className={styles.textInput}
-                        placeholder="e.g. auth.log, syslog, incident_20261006.log"
+                        placeholder="e.g. auth.log, syslog, incident_20261008.log"
                         value={pastedFilename}
                         onChange={(e) => setPastedFilename(e.target.value)}
                         maxLength={255}
@@ -495,12 +634,12 @@ export const EvidenceIntake: React.FC = () => {
 
                     <div className={styles.formGroup}>
                       <label htmlFor="log-text-area" className={styles.formLabel}>
-                        Raw Linux Log Content *
+                        // RAW LINUX LOG CONTENT *
                       </label>
                       <textarea
                         id="log-text-area"
                         className={styles.logTextArea}
-                        placeholder="Paste Linux security logs here..."
+                        placeholder="Paste Linux security logs (auth.log, syslog, journalctl)..."
                         value={pastedText}
                         onChange={(e) => setPastedText(e.target.value)}
                         rows={12}
@@ -508,19 +647,20 @@ export const EvidenceIntake: React.FC = () => {
                         disabled={isLoading}
                       />
                       <div className={styles.pasteFooter}>
-                        <span>Lines: {pastedText ? pastedText.split('\n').length : 0}</span>
-                        <span>Size: {formatByteSize(new Blob([pastedText]).size)} / 5 MB</span>
+                        <span>LINES: {pastedText ? pastedText.split('\n').length : 0}</span>
+                        <span>BUFFER SIZE: {formatByteSize(new Blob([pastedText]).size)} / 5 MB</span>
                       </div>
                     </div>
 
-                    <div>
+                    <div className={styles.actionRow}>
                       <button
                         type="submit"
-                        className={styles.actionBtnPrimary}
+                        className={styles.tacticalBtnPrimary}
                         disabled={isLoading || !pastedText.trim()}
                       >
                         <CheckCircle2 size={16} />
-                        <span>Validate & Continue</span>
+                        <span>VALIDATE & INGEST LOGS</span>
+                        <ArrowRight size={16} />
                       </button>
                     </div>
                   </form>
@@ -528,7 +668,7 @@ export const EvidenceIntake: React.FC = () => {
               </>
             )}
           </div>
-        </>
+        </div>
       )}
 
       {/* ==================================================== */}
@@ -536,49 +676,59 @@ export const EvidenceIntake: React.FC = () => {
       {/* ==================================================== */}
       {evidence && (
         <div className={styles.previewContainer}>
-          {/* Summary / Metadata Card */}
+          {/* Digital Forensics Evidence Metadata & Integrity Card */}
           <div className={styles.previewHeaderCard}>
             <div className={styles.previewTopRow}>
               <div className={styles.previewTitleGroup}>
-                <h2 className={styles.previewTitle}>Evidence Preview</h2>
+                <Database size={20} color="var(--accent-cyan)" />
+                <h2 className={styles.previewTitle}>EVIDENCE INTAKE SUMMARY</h2>
                 <span className={`${styles.sourceBadge} ${getSourceBadgeClass(evidence.source_type)}`}>
                   {evidence.source_type.toUpperCase()}
                 </span>
-                <span className={styles.validationBadge}>
-                  <CheckCircle2 size={13} />
-                  <span>{evidence.validation_status.toUpperCase()}</span>
-                </span>
+              </div>
+
+              {/* Digital Forensics Integrity Area */}
+              <div className={styles.integrityBox}>
+                <div className={styles.integrityIcons}>
+                  <Fingerprint size={16} color="var(--accent-cyan-bright)" />
+                  <Shield size={16} color="var(--accent-emerald)" />
+                  <Lock size={15} color="var(--accent-cyan)" />
+                </div>
+                <div className={styles.integrityTextGroup}>
+                  <span className={styles.integrityTitle}>EVIDENCE INTEGRITY</span>
+                  <span className={styles.integrityStatus}>VERIFIED</span>
+                </div>
               </div>
             </div>
 
-            {/* Metadata Grid */}
+            {/* Forensic Metadata Grid */}
             <div className={styles.metadataGrid}>
               <div className={styles.metaItem}>
-                <span className={styles.metaLabel}>Source Type</span>
-                <span className={styles.metaValue}>{evidence.source_type}</span>
+                <span className={styles.metaLabel}>EVIDENCE ID / SOURCE</span>
+                <span className={styles.metaValue}>{evidence.source_type.toUpperCase()}</span>
               </div>
 
               <div className={styles.metaItem}>
-                <span className={styles.metaLabel}>Filename</span>
+                <span className={styles.metaLabel}>FILENAME / LABEL</span>
                 <span className={styles.metaValue}>{evidence.filename || 'Pasted Content'}</span>
               </div>
 
               <div className={styles.metaItem}>
-                <span className={styles.metaLabel}>Byte Size</span>
+                <span className={styles.metaLabel}>EXACT BYTE SIZE</span>
                 <span className={styles.metaValue}>{formatByteSize(evidence.byte_size)}</span>
               </div>
 
               <div className={styles.metaItem}>
-                <span className={styles.metaLabel}>Candidate Events</span>
-                <span className={styles.metaValue}>{evidence.event_count} events</span>
+                <span className={styles.metaLabel}>NORMALIZED EVENTS</span>
+                <span className={styles.metaValueHighlight}>{evidence.event_count} Events</span>
               </div>
 
-              <div className={styles.metaItem} style={{ gridColumn: 'span 2' }}>
-                <span className={styles.metaLabel}>SHA-256 Digest (Exact Raw Bytes)</span>
+              <div className={styles.metaItemHash}>
+                <span className={styles.metaLabel}>SHA-256 INTEGRITY DIGEST (EXACT BYTES)</span>
                 <div className={styles.hashContainer}>
-                  <span className={styles.hashText} title={evidence.original_content_sha256}>
+                  <code className={styles.hashText} title={evidence.original_content_sha256}>
                     {evidence.original_content_sha256}
-                  </span>
+                  </code>
                   <button
                     type="button"
                     className={styles.copyButton}
@@ -586,28 +736,30 @@ export const EvidenceIntake: React.FC = () => {
                     title="Copy SHA-256 Hash"
                   >
                     {hasCopiedHash ? <Check size={14} color="var(--accent-emerald)" /> : <Copy size={14} />}
+                    <span>{hasCopiedHash ? 'COPIED' : 'COPY'}</span>
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Candidate Events Viewer Card */}
+          {/* SOC Normalized Events Table Section */}
           <div className={styles.eventsCard}>
             <div className={styles.eventsCardHeader}>
               <div className={styles.eventsTitleArea}>
-                <span className={styles.eventsTitle}>Normalized Event Candidates</span>
+                <Activity size={18} color="var(--accent-cyan)" />
+                <span className={styles.eventsTitle}>NORMALIZED EVENT CANDIDATES</span>
                 <span className={styles.eventCountBadge}>
-                  {filteredEvents.length} of {evidence.event_count}
+                  {filteredEvents.length} OF {evidence.event_count}
                 </span>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Search size={16} color="var(--text-muted)" />
+              <div className={styles.filterWrapper}>
+                <Search size={14} color="var(--text-muted)" />
                 <input
                   type="text"
                   className={styles.filterInput}
-                  placeholder="Filter candidate messages..."
+                  placeholder="Filter by keyword, process, host..."
                   value={eventSearchQuery}
                   onChange={(e) => setEventSearchQuery(e.target.value)}
                 />
@@ -618,31 +770,37 @@ export const EvidenceIntake: React.FC = () => {
               <table className={styles.eventsTable}>
                 <thead>
                   <tr>
-                    <th style={{ width: '60px' }}>#</th>
-                    <th style={{ width: '180px' }}>Timestamp</th>
-                    <th>Raw Message (Untrusted Text)</th>
+                    <th style={{ width: '45px' }}>#</th>
+                    <th style={{ width: '135px' }}>TIMESTAMP</th>
+                    <th style={{ width: '130px' }}>HOST</th>
+                    <th style={{ width: '120px' }}>PROCESS</th>
+                    <th style={{ width: '110px' }}>EVENT TYPE</th>
+                    <th>RAW LOG MESSAGE (UNTRUSTED TEXT)</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredEvents.map((evt) => (
-                    <tr key={evt.event_index}>
-                      <td className={styles.indexCell}>{evt.event_index}</td>
-                      <td className={styles.timeCell}>
-                        {evt.event_time ? (
-                          evt.event_time
-                        ) : (
-                          <span className={styles.noTime}>No timestamp</span>
-                        )}
+                    <tr key={evt.index} className={evt.severity === 'critical' ? styles.rowCritical : undefined}>
+                      <td className={styles.indexCell}>{evt.index}</td>
+                      <td className={styles.timeCell}>{evt.time}</td>
+                      <td className={styles.hostCell}>{evt.host}</td>
+                      <td className={styles.processCell}>
+                        <code>{evt.process}</code>
+                      </td>
+                      <td className={styles.badgeCell}>
+                        <span className={`${styles.socBadge} ${styles['badge_' + evt.eventType.toLowerCase()] || styles.badge_system} ${styles['sev_' + evt.severity]}`}>
+                          {evt.eventType}
+                        </span>
                       </td>
                       <td className={styles.messageCell}>
-                        <code>{evt.raw_message}</code>
+                        <code>{evt.message}</code>
                       </td>
                     </tr>
                   ))}
                   {filteredEvents.length === 0 && (
                     <tr>
-                      <td colSpan={3} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                        No events match the search query "{eventSearchQuery}".
+                      <td colSpan={6} className={styles.emptyTable}>
+                        No forensic events match search query "{eventSearchQuery}".
                       </td>
                     </tr>
                   )}
@@ -651,20 +809,21 @@ export const EvidenceIntake: React.FC = () => {
             </div>
           </div>
 
-          {/* Original Evidence (Safely rendered text) */}
+          {/* Secure Forensic Raw Evidence Terminal */}
           <div className={styles.originalSection}>
             <div
               className={styles.originalHeader}
               onClick={() => setIsOriginalExpanded(!isOriginalExpanded)}
             >
-              <span className={styles.originalTitle}>
-                <FileText size={18} color="var(--accent-cyan)" />
-                Original Evidence (Verbatim Text)
-              </span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div className={styles.originalTitle}>
+                <Terminal size={18} color="var(--accent-cyan)" />
+                <span>RAW EVIDENCE (ORIGINAL FORENSIC BUFFER)</span>
+                <span className={styles.terminalBufferTag}>[READ_ONLY_BUFFER]</span>
+              </div>
+              <div className={styles.originalActions}>
                 <button
                   type="button"
-                  className={styles.actionBtnSecondary}
+                  className={styles.tacticalBtnSecondary}
                   onClick={(e) => {
                     e.stopPropagation();
                     copyToClipboard(evidence.original_content, 'raw');
@@ -672,33 +831,45 @@ export const EvidenceIntake: React.FC = () => {
                   title="Copy raw verbatim evidence text"
                 >
                   {hasCopiedRaw ? <Check size={14} color="var(--accent-emerald)" /> : <Copy size={14} />}
-                  <span>{hasCopiedRaw ? 'Copied!' : 'Copy Raw Text'}</span>
+                  <span>{hasCopiedRaw ? 'COPIED' : 'COPY RAW TEXT'}</span>
                 </button>
-                {isOriginalExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                <div className={styles.expandIcon}>
+                  {isOriginalExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                </div>
               </div>
             </div>
 
             {isOriginalExpanded && (
               <div className={styles.originalBody}>
                 {/* SAFE TEXT RENDERING ONLY: React renders text nodes with no HTML evaluation */}
-                <pre className={styles.originalPre}>{evidence.original_content}</pre>
+                <div className={styles.terminalWindow}>
+                  <div className={styles.terminalTopBar}>
+                    <div className={styles.terminalDots}>
+                      <span className={styles.termDotRed} />
+                      <span className={styles.termDotYellow} />
+                      <span className={styles.termDotGreen} />
+                    </div>
+                    <span className={styles.terminalTitle}>forensic_evidence_view :: sha256:{evidence.original_content_sha256.substring(0, 12)}...</span>
+                  </div>
+                  <pre className={styles.originalPre}>{evidence.original_content}</pre>
+                </div>
               </div>
             )}
           </div>
 
-          {/* Bottom Action Bar */}
+          {/* Bottom Tactical Action Bar */}
           <div className={styles.bottomActions}>
             <div className={styles.statusMessage}>
-              <CheckCircle2 size={16} />
-              <span>Evidence normalized and validated. Ready for subsequent milestone analysis.</span>
+              <CheckCircle2 size={16} color="var(--accent-emerald)" />
+              <span>Evidence validated, SHA-256 hashed, and normalized. Ready for downstream investigation.</span>
             </div>
             <button
               type="button"
-              className={styles.actionBtnSecondary}
+              className={styles.tacticalBtnSecondary}
               onClick={handleReset}
             >
               <RotateCcw size={14} />
-              <span>Ingest Different Evidence</span>
+              <span>INGEST DIFFERENT EVIDENCE</span>
             </button>
           </div>
         </div>

@@ -8,6 +8,8 @@ import {
   Terminal,
   Info,
   CheckCircle2,
+  Radio,
+  ArrowRight,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchHealth } from '../services/api';
@@ -28,111 +30,124 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
 
   return (
     <div className={styles.container}>
-      {/* Hero Banner */}
+      {/* Tactical Hero Banner */}
       <div className={styles.heroBanner}>
-        <div>
+        <div className={styles.cornerTL} />
+        <div className={styles.cornerBR} />
+        <div className={styles.heroLeft}>
+          <div className={styles.heroHeaderRow}>
+            <Radio size={16} color="var(--accent-cyan-bright)" className={styles.pulseRadar} />
+            <span className={styles.heroTag}>SECURITY OPERATIONS COCKPIT</span>
+          </div>
           <h2 className={styles.heroTitle}>Forensic Investigation Workspace</h2>
           <p className={styles.heroSubtitle}>
-            Unified operations cockpit for Linux malware triage, privilege-escalation chain analysis,
-            and automated forensic evidence synthesis. Foundation established for Day 3.
+            Unified command console for Linux malware triage, privilege-escalation detection, and automated forensic evidence synthesis.
           </p>
         </div>
-        <div>
-          <div className={styles.heroTag}>
-            <ShieldCheck size={16} />
-            <span>DAY 3 FOUNDATION READY</span>
+        <div className={styles.heroRight}>
+          <div className={styles.statusBadge}>
+            <ShieldCheck size={16} color="var(--accent-emerald)" />
+            <span>DAY 4 ENGINE ACTIVE</span>
           </div>
         </div>
       </div>
 
-      {/* Metrics Grid */}
+      {/* Tactical Metrics Grid */}
       <div className={styles.metricsGrid}>
+        {/* Card 1: Backend Gateway */}
         <div className={styles.metricCard}>
+          <div className={styles.cardCornerTL} />
           <div className={styles.metricHeader}>
-            <span>Backend Gateway</span>
-            <Server size={16} color="var(--accent-cyan)" />
+            <span>BACKEND GATEWAY</span>
+            <Server size={15} color="var(--accent-cyan)" />
           </div>
           <div className={styles.metricValue}>
             {isLoading ? (
-              <span style={{ fontSize: '1.25rem', color: 'var(--accent-amber)' }}>CHECKING...</span>
+              <span style={{ fontSize: '1.125rem', color: 'var(--accent-amber)' }}>CHECKING...</span>
             ) : isError ? (
-              <span style={{ fontSize: '1.25rem', color: 'var(--accent-rose)' }}>OFFLINE</span>
+              <span style={{ fontSize: '1.125rem', color: 'var(--accent-rose)' }}>OFFLINE</span>
             ) : (
-              <span style={{ fontSize: '1.25rem', color: 'var(--accent-emerald)' }}>
+              <span style={{ fontSize: '1.125rem', color: 'var(--accent-emerald)' }}>
                 {healthData?.status?.toUpperCase()} (200 OK)
               </span>
             )}
           </div>
           <div className={styles.metricFootnote}>
-            <span>Endpoint:</span>
-            <code style={{ color: 'var(--accent-cyan)' }}>/health</code>
+            <span>ENDPOINT:</span>
+            <code>/health</code>
           </div>
         </div>
 
+        {/* Card 2: Triage Cases (Truthful State) */}
         <div className={styles.metricCard}>
+          <div className={styles.cardCornerTL} />
           <div className={styles.metricHeader}>
-            <span>Triage Cases</span>
-            <Layers size={16} color="var(--accent-cyan)" />
+            <span>INVESTIGATION CASES</span>
+            <Layers size={15} color="var(--accent-cyan)" />
           </div>
-          <div className={styles.metricValue}>3</div>
+          <div className={styles.metricValue} style={{ fontSize: '1.125rem', color: 'var(--text-secondary)' }}>
+            0 ACTIVE
+          </div>
           <div className={styles.metricFootnote}>
-            <span>Foundation schema mock cases</span>
+            <span>Case storage phased in Day 5+</span>
           </div>
         </div>
 
+        {/* Card 3: Evidence Intake */}
         <div
-          className={styles.metricCard}
-          style={{ cursor: onNavigate ? 'pointer' : 'default' }}
+          className={`${styles.metricCard} ${styles.interactiveCard}`}
           onClick={() => onNavigate && onNavigate('evidence')}
           title="Open Evidence Intake"
         >
+          <div className={styles.cardCornerTL} />
           <div className={styles.metricHeader}>
-            <span>Evidence Intake</span>
-            <Terminal size={16} color="var(--accent-cyan)" />
+            <span>EVIDENCE INTAKE</span>
+            <Terminal size={15} color="var(--accent-cyan-bright)" />
           </div>
-          <div className={styles.metricValue} style={{ fontSize: '1.25rem', color: 'var(--accent-cyan)' }}>
+          <div className={styles.metricValue} style={{ fontSize: '1.125rem', color: 'var(--accent-cyan-bright)' }}>
             DAY 4 LIVE
           </div>
           <div className={styles.metricFootnote}>
-            <span>Click to upload, paste, or load samples &rarr;</span>
+            <span style={{ color: 'var(--accent-cyan-bright)' }}>Ingest logs & samples</span>
+            <ArrowRight size={12} color="var(--accent-cyan-bright)" />
           </div>
         </div>
 
+        {/* Card 4: AI Reasoning Core */}
         <div className={styles.metricCard}>
+          <div className={styles.cardCornerTL} />
           <div className={styles.metricHeader}>
-            <span>AI Reasoning Core</span>
-            <Cpu size={16} color="var(--accent-cyan)" />
+            <span>AI REASONING CORE</span>
+            <Cpu size={15} color="var(--accent-cyan)" />
           </div>
           <div className={styles.metricValue}>
-            <span style={{ fontSize: '1.25rem', color: 'var(--text-primary)' }}>Claude 3.5</span>
+            <span style={{ fontSize: '1.125rem', color: 'var(--text-primary)' }}>Anthropic Claude</span>
           </div>
           <div className={styles.metricFootnote}>
-            <span>Backend-mediated API (Env-driven)</span>
+            <span>Backend mediated via .env</span>
           </div>
         </div>
       </div>
 
-      {/* Notice Card for Foundation Scope */}
+      {/* Scope Boundary Notice Card */}
       <div className={styles.noticeCard}>
-        <Info size={22} color="var(--accent-cyan)" style={{ flexShrink: 0, marginTop: '2px' }} />
+        <Info size={20} color="var(--accent-cyan)" style={{ flexShrink: 0, marginTop: '2px' }} />
         <div className={styles.noticeText}>
-          <strong>Day 3 Scope Boundary:</strong> This interface represents the foundational
-          application shell. Per project requirements, live malware analysis, privilege-escalation detection,
-          AI prompt orchestration, and forensic PDF generation will be phased in Days 4-10.
+          <strong>Day 4 Ingestion Live:</strong> Full evidence upload, log paste, sample loading, SHA-256 integrity verification, and event normalization are operational. Subsequent timeline sequencing and AI synthesis will unlock in upcoming milestones.
         </div>
       </div>
 
       {/* Cases Table Placeholder */}
-      <CasesPlaceholder />
+      <CasesPlaceholder onNavigate={onNavigate} />
 
       {/* Approved Stack Verification Grid */}
       <div className={styles.section}>
         <div className={styles.sectionHeader}>
           <div className={styles.sectionTitle}>
             <CheckCircle2 size={18} color="var(--accent-emerald)" />
-            <span>Approved Architecture Matrix</span>
+            <span>APPROVED ARCHITECTURE MATRIX</span>
           </div>
-          <span className={styles.sectionBadge}>v0.1.0 Architecture Specification</span>
+          <span className={styles.sectionBadge}>SOC PLATFORM SPECIFICATION</span>
         </div>
 
         <div className={styles.techStackGrid}>
@@ -143,9 +158,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             </div>
             <ul className={styles.techList}>
               <li><span className={styles.bullet} /> React 18 + TypeScript</li>
-              <li><span className={styles.bullet} /> Vite Fast Build Tooling</li>
-              <li><span className={styles.bullet} /> CSS Modules & Variables Design Tokens</li>
-              <li><span className={styles.bullet} /> TanStack Query for Asynchronous State</li>
+              <li><span className={styles.bullet} /> Vite Fast Tooling</li>
+              <li><span className={styles.bullet} /> Cyber Defense CSS Modules</li>
+              <li><span className={styles.bullet} /> TanStack Query State Layer</li>
             </ul>
           </div>
 
@@ -156,8 +171,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             </div>
             <ul className={styles.techList}>
               <li><span className={styles.bullet} /> Python 3.12 + FastAPI Core</li>
-              <li><span className={styles.bullet} /> Pydantic v2 & Pydantic-Settings</li>
-              <li><span className={styles.bullet} /> Configurable Environment Variables</li>
+              <li><span className={styles.bullet} /> Pydantic v2 Settings & Schemas</li>
+              <li><span className={styles.bullet} /> Secure Env-driven Configuration</li>
               <li><span className={styles.bullet} /> Pytest & HTTPX Test Coverage</li>
             </ul>
           </div>
@@ -168,10 +183,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               <span>Data & Intelligence Layer</span>
             </div>
             <ul className={styles.techList}>
-              <li><span className={styles.bullet} /> Supabase PostgreSQL Database</li>
-              <li><span className={styles.bullet} /> Supabase Secure Authentication</li>
-              <li><span className={styles.bullet} /> Anthropic Claude AI (Backend Only)</li>
-              <li><span className={styles.bullet} /> WeasyPrint Forensic PDF Engine</li>
+              <li><span className={styles.bullet} /> Supabase PostgreSQL DB</li>
+              <li><span className={styles.bullet} /> Supabase Secure Auth</li>
+              <li><span className={styles.bullet} /> Anthropic Claude AI Core</li>
+              <li><span className={styles.bullet} /> WeasyPrint PDF Engine</li>
             </ul>
           </div>
         </div>

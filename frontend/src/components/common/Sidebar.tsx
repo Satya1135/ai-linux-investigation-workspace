@@ -1,11 +1,13 @@
 import React from 'react';
 import {
   LayoutDashboard,
-  FolderGit2,
   Terminal,
-  AlertTriangle,
+  Clock,
+  Cpu,
   FileText,
-  Activity,
+  Sliders,
+  ShieldCheck,
+  Radio,
 } from 'lucide-react';
 import { NavSection } from '../../types';
 import styles from './Sidebar.module.css';
@@ -19,45 +21,56 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
   const navItems = [
     {
       id: 'dashboard' as NavSection,
-      label: 'Workspace Overview',
+      label: 'Dashboard',
       icon: LayoutDashboard,
       badge: 'Active',
-      disabled: false,
-    },
-    {
-      id: 'cases' as NavSection,
-      label: 'Investigation Cases',
-      icon: FolderGit2,
-      badge: 'Placeholder',
       disabled: false,
     },
     {
       id: 'evidence' as NavSection,
       label: 'Evidence Intake',
       icon: Terminal,
-      badge: 'Active',
+      badge: 'Live',
       disabled: false,
     },
     {
       id: 'investigation' as NavSection,
-      label: 'Malware / Priv-Esc',
-      icon: AlertTriangle,
+      label: 'Investigation Timeline',
+      icon: Clock,
       badge: 'Day 5+',
       disabled: true,
     },
     {
+      id: 'cases' as NavSection,
+      label: 'AI Analysis',
+      icon: Cpu,
+      badge: 'Day 6+',
+      disabled: false,
+    },
+    {
       id: 'reports' as NavSection,
-      label: 'Forensic Reports',
+      label: 'Reports',
       icon: FileText,
       badge: 'Day 8+',
+      disabled: true,
+    },
+    {
+      id: 'settings' as NavSection,
+      label: 'Settings',
+      icon: Sliders,
+      badge: 'Config',
       disabled: true,
     },
   ];
 
   return (
     <aside className={styles.sidebar}>
-      <nav className={styles.navSection} aria-label="Investigation Workspace Navigation">
-        <span className={styles.sectionLabel}>Navigation</span>
+      <nav className={styles.navSection} aria-label="Tactical Navigation">
+        <div className={styles.sectionHeader}>
+          <span className={styles.sectionLabel}>// DIRECTIVES</span>
+          <span className={styles.hudIndicator}>SYS::ACTIVE</span>
+        </div>
+        
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentTab === item.id;
@@ -69,24 +82,40 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
               disabled={item.disabled}
               title={item.disabled ? `Scheduled for future release (${item.badge})` : item.label}
             >
-              <Icon size={18} />
-              <span>{item.label}</span>
+              <div className={styles.iconBox}>
+                <Icon size={16} />
+              </div>
+              <span className={styles.navLabel}>{item.label}</span>
               <span className={styles.badgeScope}>{item.badge}</span>
+              {isActive && <div className={styles.activeGlowBar} />}
             </button>
           );
         })}
       </nav>
 
+      {/* Sidebar Tactical Footer */}
       <div className={styles.sidebarFooter}>
-        <div className={styles.systemBadge}>
-          <div className={styles.systemBadgeTitle}>
-            <span>Core Engines</span>
-            <Activity size={14} color="var(--accent-cyan)" />
+        <div className={styles.nodePanel}>
+          <div className={styles.nodePanelHeader}>
+            <div className={styles.nodeTitle}>
+              <Radio size={12} color="var(--accent-cyan)" className={styles.pulseIcon} />
+              <span>NODE::SEC-LN-01</span>
+            </div>
+            <ShieldCheck size={14} color="var(--accent-emerald)" />
           </div>
-          <div className={styles.systemBadgeDesc}>
-            <div>FastAPI + Pydantic v2</div>
-            <div>React + TanStack Query</div>
-            <div style={{ color: 'var(--text-emerald)', marginTop: '4px' }}>Foundation Live</div>
+          <div className={styles.nodeSpecs}>
+            <div className={styles.specRow}>
+              <span>CORE:</span>
+              <code>FASTAPI + PYDANTIC</code>
+            </div>
+            <div className={styles.specRow}>
+              <span>ENGINE:</span>
+              <code>ANTHROPIC CLAUDE</code>
+            </div>
+            <div className={styles.specRow}>
+              <span>INTEGRITY:</span>
+              <span style={{ color: 'var(--text-emerald)' }}>SHA-256 VERIFIED</span>
+            </div>
           </div>
         </div>
       </div>

@@ -1,89 +1,103 @@
-# FINAL THEME LOCKED — Visual System & Verification
+# THEME IMPLEMENTATION & POLISH — DARK CYBER DEFENSE + DIGITAL FORENSICS
 
 **Project**: AI-Powered Linux Investigation Workspace  
-**Status**: Theme Locked & Verified  
-**Theme Name**: **DARK CYBER DEFENSE + DIGITAL FORENSICS**
+**Status**: Final Visual Polish & Data Integrity Verified  
+**Theme**: **DARK CYBER DEFENSE + DIGITAL FORENSICS + TACTICAL SOC**
 
 ---
 
-## 1. Final Visual Direction
+## 1. Implemented Visual System & Polish
 
-The visual interface is officially finalized and locked under the **Dark Cyber Defense + Digital Forensics** design system.
+The frontend interface incorporates cinematic cyber-defense atmosphere and tactical digital forensics styling:
 
-- **Atmosphere**: Dark charcoal/black foundation with tactical cybersecurity HUD elements, security shield identifiers, fingerprint/forensic cues, and subtle circuit/network telemetry textures.
-- **Hierarchy Focus**: Background graphics operate strictly as subtle atmospheric context (15–25% reduced intensity), keeping foreground content—such as log evidence tables, SHA-256 integrity digests, and triage metadata—crisply legible with high contrast.
-- **Professional SOC Aesthetic**: High readability, clear boundaries, and clean tabular representations tailored for Linux forensic analysis.
+### A. Deep Charcoal & Near-Black Foundations
+- **Base Canvas**: Multi-layered background combining a 32px micro-grid, ambient teal/cyan light cones, faint circuit trace and network node motifs, and deep charcoal-to-black gradient (`#030708` to `#061011`).
+- **Surface Elevation**: High-contrast tactical panels (`#0A1517` / `#0D1B1D` / `rgba(8, 18, 19, 0.88)` with `backdrop-filter: blur(16px)`).
+- **Tactical Accents**: Thin structural cyan borders (`rgba(32, 207, 196, 0.22)` to `rgba(32, 207, 196, 0.5)`), corner bracket tick-marks, concentric circular HUD rings, and restrained glow highlights.
 
----
-
-## 2. Final Color System
-
-The approved color palette is strictly locked:
-
-| Role | Color / Hex | Usage |
+### B. Color Palette Architecture
+| Role | Hex Color | Usage & Meaning |
 | :--- | :--- | :--- |
-| **Primary Base** | `#090d16` (Charcoal / Near-Black) | Core background foundation |
-| **Secondary Base** | `#0f1523` / `#141b2d` | Navigation sidebars, panel containers, elevated cards |
-| **Primary Accent** | `#06b6d4` / `#38bdf8` (Teal / Cyan) | Active navigation, interactive buttons, identifiers, glowing accents |
-| **Verified / Safe** | `#10b981` / `#34d399` (Emerald Green) | Online backend indicator, valid evidence badges, successful hashes |
-| **Warning / Notice** | `#f59e0b` / `#fbbf24` (Amber) | Untrusted text boundary notice, connecting states |
-| **Threat / Error** | `#f43f5e` / `#fb7185` (Rose / Red) | Error alerts, backend offline indicators, critical severity tags |
-| **Text Primary** | `#f8fafc` | High-contrast headers, values, and raw logs |
-| **Text Secondary / Muted** | `#94a3b8` / `#64748b` | Subheadings, metadata labels, footnotes |
+| **Primary Base** | `#030708` / `#061011` | Void & primary cockpit foundation |
+| **Panel Surface** | `#0A1517` / `#0D1B1D` | Tactical containers & cards |
+| **Primary Accent** | `#20CFC4` / `#35DDD0` | Dominant interactive buttons, active indicators, borders |
+| **Safe / Normal** | `#72C49A` / `#8BD2AA` | Verified integrity, healthy status, normal events |
+| **Warning** | `#D8A847` | Untrusted data boundary, execution alerts |
+| **High / Suspicious**| `#E57A42` | Unauthorized access, shadow access, suspicious commands |
+| **Critical / Threat**| `#D94A45` | Privilege escalation anomalies, rootshell creation |
+| **Text Primary** | `#E8F1EF` | High-contrast monospace & sans-serif content |
+| **Text Muted** | `#728681` | Tactical labels, metadata keys, subheadings |
 
 ---
 
-## 3. Background Treatment
+## 2. Component Redesign & Integrity Specifications
 
-- **Ambient Gradients**: Radial background light sources calibrated to a restrained 3% alpha (`rgba(6, 182, 212, 0.03)` / `rgba(99, 102, 241, 0.03)`), providing depth without visual interference.
-- **Hero & Card Glows**: Reduced intensity of decorative glow filters (`--accent-cyan-glow: rgba(6, 182, 212, 0.18)` and `box-shadow: 0 0 16px -3px var(--accent-cyan-glow)`).
-- **Forensic Panels**: Solid high-contrast backgrounds (`#141b2d`, `#1a233a`) with subtle 1px structural borders (`rgba(255, 255, 255, 0.07)` to `rgba(255, 255, 255, 0.12)`).
+### 1. Command Console Header (`Header.tsx` & `Header.module.css`)
+- **Brand Title**: `AI LINUX INVESTIGATOR` with `SOC v0.1` tactical badge and cyber shield logo with corner alignment dots.
+- **Mission Subtitle**: `MALWARE & PRIVILEGE-ESCALATION INVESTIGATION WORKSPACE`.
+- **Tactical HUD Depth**: Ambient gradient grid strip and tactical modules:
+  1. `SYSTEM STATUS`: `[ ONLINE ]` (pulsing emerald indicator).
+  2. `BACKEND API`: `[ HEALTHY ]` (live `/health` polling).
+  3. `AI ENGINE`: `[ READY ]` (Anthropic Claude Reasoning Core).
+
+### 2. Tactical Navigation Sidebar (`Sidebar.tsx` & `Sidebar.module.css`)
+- **Directives Header**: `// DIRECTIVES` with `SYS::ACTIVE` status chip.
+- **Active Selection**: Glowing cyan left illumination bar, dark teal linear gradient (`rgba(32, 207, 196, 0.18)`), 1px bright cyan border, and monospace typography.
+- **Navigation Sections**:
+  - `Dashboard` (Active)
+  - `Evidence Intake` (Active Live)
+  - `Investigation Timeline` (`Day 5+` Scheduled)
+  - `AI Analysis` (`Day 6+` Scheduled)
+  - `Reports` (`Day 8+` Scheduled)
+  - `Settings` (Config)
+- **Node Footer**: `NODE::SEC-LN-01` with pulsing radar indicator, stack specs, and `SHA-256 VERIFIED` integrity status.
+
+### 3. Evidence Intake Module (`EvidenceIntake.tsx` & `EvidenceIntake.module.css`)
+- **Channel Header**: `EVIDENCE INTAKE` with `● LIVE` emerald pulse and `// CHANNEL: SOC_INTAKE_01`.
+- **Untrusted Text Boundary**: Amber tactical alert container with shield/lock glyphs and clear boundary enforcement notes.
+- **Intake Mode Selector Cards**:
+  - **Sample Scenario**: Primary recommended card with corner brackets, glowing highlight, and direct action `Use Sample Scenario →`.
+  - **Upload Log File**: Tactical drag-and-drop zone with crosshair HUD corners and file size validator (&le; 5 MB).
+  - **Paste Linux Logs**: Direct terminal input with live line counter and buffer size meter.
+- **Evidence Integrity Area**:
+  - Visual Forensics Badge: `EVIDENCE INTEGRITY : VERIFIED` with Fingerprint, Shield, and Lock iconography.
+  - Forensic Metadata Grid: Source type, filename, byte size, and normalized event count.
+  - SHA-256 Digest Container: Distinct monospace terminal box with one-click copy.
+- **SOC Normalized Events Table**:
+  - Tactical header with live event filter counter.
+  - Columns: `#`, `TIMESTAMP`, `HOST`, `PROCESS`, `EVENT TYPE`, `RAW LOG MESSAGE (UNTRUSTED TEXT)`.
+  - Color-coded SOC category badges: `PRIVESC` (Red), `AUTH` (High Orange / Emerald), `EXEC` (Amber), `FILE_ACCESS` (Orange/Amber), `SYSTEM` / `PROCESS` / `CRON` (Teal/Emerald).
+- **Forensic Raw Evidence Terminal**:
+  - macOS/Linux terminal window frame with traffic light controls (`$ /var/log/secure [READ_ONLY_BUFFER]`).
+  - Monospace text renderer with horizontal scrolling and one-click clipboard copy.
+
+### 4. Workspace Cockpit Dashboard (`Dashboard.tsx`, `Dashboard.module.css`, `CasesPlaceholder.tsx`)
+- **Hero Banner**: Circular HUD geometry, shield watermark, radar pulse, system tag, and corner accents.
+- **4 Real Metric Cards**:
+  1. `BACKEND GATEWAY` : Live `/health` status (200 OK).
+  2. `INVESTIGATION CASES` : Truthful foundation state (`0 ACTIVE`, storage phased in Day 5+).
+  3. `EVIDENCE INTAKE` : `DAY 4 LIVE` router card.
+  4. `AI REASONING CORE` : `Anthropic Claude` (backend mediated).
+- **Cases Foundation Card**: Clean placeholder state informing analysts that case persistence and multi-artifact timeline correlation will unlock in Day 5+.
+- **Architecture Matrix**: Multi-card specification grid with cyan bullet markers and technical borders.
 
 ---
 
-## 4. UI & Element Treatment
+## 3. Verification Results
 
-The following primary components maintain maximum clarity and focus:
-- **Evidence Intake Header & Controls**: Distinct headers, subheadings, and quick action controls.
-- **Intake Mode Selectors**: Three distinct intake pathways (Sample Scenario, Upload `.log`/`.txt`, Paste Linux Logs) with high-contrast active states.
-- **Evidence Metadata Grid**: High-visibility labels, byte sizes, event counts, and full SHA-256 hash preview with instant one-click copy.
-- **Normalized Events Table**: Sticky header, monospace styling, clear index columns, timestamps, and search filtering.
-- **Verbatim Raw Evidence Viewer**: Collapsible safe-text viewport with horizontal scrolling and quick clipboard export.
-- **Navigation & Status Indicators**: Responsive sidebar with status badges and live backend connection pulse.
-
----
-
-## 5. Functionality Preservation
-
-All functional systems and security boundaries remain untouched and fully preserved:
-- **FastAPI Endpoints**: `/health`, `/api/evidence/sample`, `/api/evidence/upload`, `/api/evidence/paste`.
-- **Security Boundaries**: Raw logs treated as inert untrusted text data; zero execution of scripts or shell commands.
-- **Data Pipelines**: SHA-256 byte-level calculation, event candidate normalization, and timestamp extraction.
-- **Real Data**: No synthetic fake threat maps, fake AI metrics, or placeholder attack counts introduced.
-
----
-
-## 6. Verification Results
-
-### Frontend Verification
+### Frontend Production Build
 ```bash
 cd frontend
 npm run build
 # Result: 0 errors (tsc + vite build completed successfully)
 ```
 
-### Backend Verification
+### Backend Pytest Suite
 ```bash
 .venv\Scripts\pytest -q
-# Result: 31 passed in 0.96s (100% test coverage preserved)
+# Result: 31 passed in 0.54s (100% test coverage)
 ```
 
-### Workflow Checks
-1. **Workspace Overview / Dashboard**: Live `/health` polling, architectural matrices, and navigation.
-2. **Evidence Intake Navigation**: Smooth switching between Overview and Evidence Intake.
-3. **Sample Scenario**: Instant loading of `sample-privilege-escalation.log` (30 normalized events, SHA-256 computed).
-4. **File Upload**: Drag-and-drop & file picker validation for `.log` and `.txt` up to 5 MB.
-5. **Paste Logs**: Real-time line and byte size counter with instant normalization.
-6. **Validation & Metadata**: Event count, byte size, file type badge, and SHA-256 verification.
-7. **Search & Filter**: Real-time message query filtering across candidate events.
-8. **Raw Evidence Viewer**: Collapsible raw text container with copy functionality.
+### Data Integrity & Safety
+- **Zero fake telemetry**: Removed hardcoded fake case entities, fake hostnames, and fake artifact counts.
+- **Security Boundaries**: Raw evidence remains strictly inert text with no script or binary execution.
