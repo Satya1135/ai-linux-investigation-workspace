@@ -2,7 +2,9 @@ import {
   HealthStatus,
   EvidenceResponse,
   LogEventCandidate,
+  TimelineEvent,
   TimelineResponse,
+  InvestigationResponse,
 } from '../types';
 
 /**
@@ -249,3 +251,70 @@ export async function analyzeSampleTimeline(
     throw error;
   }
 }
+
+/**
+ * Run defensive investigation pipeline on chronologically sequenced timeline events.
+ * Calls POST /api/v1/investigation/analyze.
+ */
+export async function analyzeInvestigation(
+  events: TimelineEvent[]
+): Promise<InvestigationResponse> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/investigation/analyze`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        events,
+      }),
+    });
+
+    if (!response.ok) {
+      const msg = await parseErrorResponse(response);
+      throw new Error(msg);
+    }
+
+    return await response.json();
+  } catch (error: unknown) {
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error(`Backend service is unreachable at ${API_BASE_URL}. Verify backend server is running.`);
+    }
+    throw error;
+  }
+}
+
+/**
+ * Run defensive investigation directly on pre-packaged sample scenario.
+ * Calls POST /api/v1/investigation/sample.
+ */
+export async function analyzeSampleInvestigation(
+  sampleName: string = 'sample-privilege-escalation.log'
+): Promise<InvestigationResponse> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/investigation/sample`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        sample_name: sampleName,
+      }),
+    });
+
+    if (!response.ok) {
+      const msg = await parseErrorResponse(response);
+      throw new Error(msg);
+    }
+
+    return await response.json();
+  } catch (error: unknown) {
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error(`Backend service is unreachable at ${API_BASE_URL}. Verify backend server is running.`);
+    }
+    throw error;
+  }
+}
+

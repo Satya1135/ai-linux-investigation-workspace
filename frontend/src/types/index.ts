@@ -129,3 +129,66 @@ export interface ApiErrorDetail {
   detail: string;
   error_code?: string;
 }
+
+/**
+ * Finding severity rating vocabulary.
+ */
+export type FindingSeverity = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+/**
+ * High-level investigation verdict.
+ */
+export type InvestigationVerdict =
+  | 'SUSPICIOUS_ACTIVITY_DETECTED'
+  | 'NO_HIGH_CONFIDENCE_FINDINGS'
+  | 'INSUFFICIENT_EVIDENCE';
+
+/**
+ * Structured investigation finding grounded in timeline evidence.
+ */
+export interface InvestigationFinding {
+  finding_id: string;
+  title: string;
+  severity: FindingSeverity;
+  category: string;
+  explanation: string;
+  supporting_events: string[];
+  original_event_indexes: number[];
+  timestamps: string[];
+  hosts: string[];
+  processes: string[];
+  confidence_score: number;
+  recommended_next_step: string;
+}
+
+/**
+ * Structured activity log event representing investigation progress.
+ */
+export interface InvestigationActivity {
+  step: string;
+  message: string;
+  timestamp: string;
+  details?: Record<string, unknown> | null;
+}
+
+/**
+ * Request payload for POST /api/v1/investigation/analyze.
+ */
+export interface InvestigationRequest {
+  events: TimelineEvent[];
+}
+
+/**
+ * Response payload returned by defensive investigation pipeline.
+ */
+export interface InvestigationResponse {
+  verdict: InvestigationVerdict;
+  verdict_explanation: string;
+  total_events_analyzed: number;
+  findings_count: number;
+  low_confidence_excluded_count: number;
+  findings: InvestigationFinding[];
+  activities: InvestigationActivity[];
+  analysis_method: string;
+}
+

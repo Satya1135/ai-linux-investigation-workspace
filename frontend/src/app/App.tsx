@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Header } from '../components/common/Header';
 import { Sidebar } from '../components/common/Sidebar';
+import { Footer } from '../components/common/Footer';
 import { Dashboard } from '../pages/Dashboard';
 import { EvidenceIntake } from '../pages/EvidenceIntake';
 import { InvestigationTimeline } from '../pages/InvestigationTimeline';
-import { CasesPlaceholder } from '../components/cases/CasesPlaceholder';
-import { NavSection, LogEventCandidate } from '../types';
+import { InvestigationAnalysis } from '../pages/InvestigationAnalysis';
+import { NavSection, LogEventCandidate, TimelineEvent } from '../types';
 import styles from './App.module.css';
 
 const queryClient = new QueryClient({
@@ -21,10 +22,16 @@ const queryClient = new QueryClient({
 export const AppContent: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<NavSection>('dashboard');
   const [activeEvidenceEvents, setActiveEvidenceEvents] = useState<LogEventCandidate[] | undefined>(undefined);
+  const [activeTimelineEvents, setActiveTimelineEvents] = useState<TimelineEvent[] | undefined>(undefined);
 
   const handleNavigateToTimelineWithEvents = (events: LogEventCandidate[]) => {
     setActiveEvidenceEvents(events);
     setCurrentTab('investigation');
+  };
+
+  const handleNavigateToAnalysisWithEvents = (events: TimelineEvent[]) => {
+    setActiveTimelineEvents(events);
+    setCurrentTab('cases');
   };
 
   return (
@@ -33,23 +40,28 @@ export const AppContent: React.FC = () => {
       <div className={styles.mainBody}>
         <Sidebar currentTab={currentTab} onSelectTab={setCurrentTab} />
         <main className={styles.mainContent}>
-          {currentTab === 'dashboard' && <Dashboard onNavigate={setCurrentTab} />}
-          {currentTab === 'evidence' && (
-            <EvidenceIntake
-              onNavigateToTimeline={handleNavigateToTimelineWithEvents}
-            />
-          )}
-          {currentTab === 'investigation' && (
-            <InvestigationTimeline
-              onNavigate={setCurrentTab}
-              incomingEvents={activeEvidenceEvents}
-            />
-          )}
-          {currentTab === 'cases' && (
-            <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
-              <CasesPlaceholder onNavigate={setCurrentTab} />
-            </div>
-          )}
+          <div className={styles.contentBody}>
+            {currentTab === 'dashboard' && <Dashboard onNavigate={setCurrentTab} />}
+            {currentTab === 'evidence' && (
+              <EvidenceIntake
+                onNavigateToTimeline={handleNavigateToTimelineWithEvents}
+              />
+            )}
+            {currentTab === 'investigation' && (
+              <InvestigationTimeline
+                onNavigate={setCurrentTab}
+                incomingEvents={activeEvidenceEvents}
+                onNavigateToAnalysis={handleNavigateToAnalysisWithEvents}
+              />
+            )}
+            {currentTab === 'cases' && (
+              <InvestigationAnalysis
+                onNavigate={setCurrentTab}
+                availableTimelineEvents={activeTimelineEvents}
+              />
+            )}
+          </div>
+          <Footer />
         </main>
       </div>
     </div>

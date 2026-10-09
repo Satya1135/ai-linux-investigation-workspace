@@ -113,18 +113,23 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           </div>
         </div>
 
-        {/* Card 4: AI Reasoning Core */}
-        <div className={styles.metricCard}>
+        {/* Card 4: Local Rule-Based Analysis */}
+        <div
+          className={`${styles.metricCard} ${styles.interactiveCard}`}
+          onClick={() => onNavigate && onNavigate('cases')}
+          title="Open Investigation Analysis (Rule-Based)"
+        >
           <div className={styles.cardCornerTL} />
           <div className={styles.metricHeader}>
-            <span>AI REASONING CORE</span>
-            <Cpu size={15} color="var(--accent-cyan)" />
+            <span>INVESTIGATION ANALYSIS</span>
+            <Cpu size={15} color="var(--accent-cyan-bright)" />
           </div>
           <div className={styles.metricValue}>
-            <span style={{ fontSize: '1.125rem', color: 'var(--text-primary)' }}>Anthropic Claude</span>
+            <span style={{ fontSize: '1.125rem', color: 'var(--accent-cyan-bright)' }}>LOCAL RULES</span>
           </div>
           <div className={styles.metricFootnote}>
-            <span>Backend mediated via .env</span>
+            <span style={{ color: 'var(--accent-cyan-bright)' }}>Deterministic Heuristics (Day 6)</span>
+            <ArrowRight size={12} color="var(--accent-cyan-bright)" />
           </div>
         </div>
       </div>

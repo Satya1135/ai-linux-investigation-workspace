@@ -17,6 +17,7 @@ import {
   Check,
   X,
   SlidersHorizontal,
+  Cpu,
 } from 'lucide-react';
 import {
   TimelineEvent,
@@ -34,6 +35,7 @@ import styles from './InvestigationTimeline.module.css';
 interface InvestigationTimelineProps {
   onNavigate?: (tab: NavSection) => void;
   incomingEvents?: LogEventCandidate[];
+  onNavigateToAnalysis?: (events: TimelineEvent[]) => void;
 }
 
 const ATTACK_STAGE_DEFINITIONS: { stage: AttackStage; number: string; label: string }[] = [
@@ -50,6 +52,7 @@ const ATTACK_STAGE_DEFINITIONS: { stage: AttackStage; number: string; label: str
 export const InvestigationTimeline: React.FC<InvestigationTimelineProps> = ({
   onNavigate,
   incomingEvents,
+  onNavigateToAnalysis,
 }) => {
   const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
   const [stagesDetected, setStagesDetected] = useState<AttackStage[]>([]);
@@ -273,7 +276,23 @@ export const InvestigationTimeline: React.FC<InvestigationTimelineProps> = ({
               <span>ANALYZE SAMPLE TIMELINE</span>
             </button>
           ) : (
-            <div style={{ display: 'flex', gap: '0.6rem' }}>
+            <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
+              <button
+                type="button"
+                className={styles.tacticalBtnPrimary}
+                onClick={() => {
+                  if (onNavigateToAnalysis) {
+                    onNavigateToAnalysis(timelineEvents);
+                  } else if (onNavigate) {
+                    onNavigate('cases');
+                  }
+                }}
+                disabled={isLoading}
+                title="Execute defensive investigation pipeline on loaded timeline events"
+              >
+                <Cpu size={14} />
+                <span>ANALYZE FINDINGS ({timelineEvents.length} EVT)</span>
+              </button>
               <button
                 type="button"
                 className={styles.tacticalBtnSecondary}
@@ -291,7 +310,7 @@ export const InvestigationTimeline: React.FC<InvestigationTimelineProps> = ({
                 title="Clear loaded timeline events"
               >
                 <RotateCcw size={14} />
-                <span>CLEAR TIMELINE</span>
+                <span>CLEAR</span>
               </button>
             </div>
           )}

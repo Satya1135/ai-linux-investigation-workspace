@@ -44,8 +44,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
       id: 'cases' as NavSection,
       label: 'AI Analysis',
       icon: Cpu,
-      badge: 'Day 6+',
-      disabled: true,
+      badge: 'Live',
+      disabled: false,
     },
     {
       id: 'reports' as NavSection,

@@ -4,7 +4,9 @@ from backend.app.core.config import settings
 from backend.app.api.routes.health import router as health_router
 from backend.app.api.routes.evidence import router as evidence_router
 from backend.app.api.routes.timeline import router as timeline_router
+from backend.app.api.routes.investigation import router as investigation_router
 from backend.app.services.evidence.exceptions import EvidenceException
+from backend.app.services.investigation.exceptions import InvestigationException
 from fastapi.responses import JSONResponse
 
 app = FastAPI(
@@ -18,6 +20,14 @@ app = FastAPI(
 # Exception handler for evidence domain exceptions
 @app.exception_handler(EvidenceException)
 async def evidence_exception_handler(request, exc: EvidenceException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.message, "error_code": exc.error_code},
+    )
+
+# Exception handler for investigation domain exceptions
+@app.exception_handler(InvestigationException)
+async def investigation_exception_handler(request, exc: InvestigationException):
     return JSONResponse(
         status_code=exc.status_code,
         content={"detail": exc.message, "error_code": exc.error_code},
@@ -44,6 +54,9 @@ app.include_router(evidence_router, prefix=settings.API_V1_STR)
 
 # Mount timeline investigation routes under /api/v1
 app.include_router(timeline_router, prefix=settings.API_V1_STR)
+
+# Mount defensive investigation pipeline routes under /api/v1
+app.include_router(investigation_router, prefix=settings.API_V1_STR)
 
 
 @app.get("/", tags=["root"])
