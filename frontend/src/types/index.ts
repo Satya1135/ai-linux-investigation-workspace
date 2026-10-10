@@ -1,4 +1,4 @@
-export type NavSection = 'dashboard' | 'cases' | 'evidence' | 'investigation' | 'reports' | 'settings';
+export type NavSection = 'dashboard' | 'cases' | 'evidence' | 'investigation' | 'reports' | 'settings' | 'case-management';
 
 export interface HealthStatus {
   status: string;
@@ -192,3 +192,27 @@ export interface InvestigationResponse {
   analysis_method: string;
 }
 
+
+
+/** Analyst's review is kept separate from immutable original engine output. */
+export type AnalystDecision = 'PENDING' | 'CONFIRMED' | 'REJECTED' | 'EDITED';
+export interface AnalystFindingReview {
+  findingId: string;
+  decision: AnalystDecision;
+  editedTitle: string;
+  editedExplanation: string;
+  notes: string;
+  reviewedAt: string | null;
+}
+export interface SavedInvestigationCase {
+  caseId: string;
+  caseName: string;
+  createdAt: string;
+  updatedAt: string;
+  verdict: InvestigationVerdict;
+  totalEventsAnalyzed: number;
+  analysisMethod: string;
+  originalAnalysis: InvestigationResponse;
+  reviews: AnalystFindingReview[];
+  analystNotes: string;
+}

@@ -8,6 +8,7 @@ import {
   Sliders,
   ShieldCheck,
   Radio,
+  FolderOpen,
 } from 'lucide-react';
 import { NavSection } from '../../types';
 import styles from './Sidebar.module.css';
@@ -45,6 +46,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
       label: 'AI Analysis',
       icon: Cpu,
       badge: 'Live',
+      disabled: false,
+    },
+    {
+      id: 'case-management' as NavSection,
+      label: 'Saved Cases',
+      icon: FolderOpen,
+      badge: 'Day 7',
       disabled: false,
     },
     {

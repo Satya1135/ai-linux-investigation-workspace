@@ -23,23 +23,36 @@ import {
   InvestigationFinding,
   FindingSeverity,
   NavSection,
+  SavedInvestigationCase,
+  AnalystFindingReview,
 } from '../types';
 import {
   analyzeInvestigation,
   analyzeSampleInvestigation,
 } from '../services/api';
 import styles from './InvestigationAnalysis.module.css';
+import { ArrowLeft, Save } from 'lucide-react';
 
 interface InvestigationAnalysisProps {
   onNavigate?: (tab: NavSection) => void;
   availableTimelineEvents?: TimelineEvent[];
+  initialCase?: SavedInvestigationCase | null;
+  onSaveCase?: (analysis: InvestigationResponse, reviews: AnalystFindingReview[], caseName: string, analystNotes: string, existingCaseId?: string) => void;
+  onBackToCases?: () => void;
 }
 
 export const InvestigationAnalysis: React.FC<InvestigationAnalysisProps> = ({
   onNavigate,
   availableTimelineEvents,
+  initialCase,
+  onSaveCase,
+  onBackToCases,
 }) => {
-  const [investigationData, setInvestigationData] = useState<InvestigationResponse | null>(null);
+  const [investigationData, setInvestigationData] = useState<InvestigationResponse | null>(initialCase?.originalAnalysis ?? null);
+  const [caseName, setCaseName] = useState(initialCase?.caseName ?? 'Linux privilege-escalation investigation');
+  const [analystNotes, setAnalystNotes] = useState(initialCase?.analystNotes ?? '');
+  const [reviews, setReviews] = useState<AnalystFindingReview[]>(initialCase?.reviews ?? []);
+  const [caseNotice, setCaseNotice] = useState('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [lastAction, setLastAction] = useState<'sample' | 'timeline' | null>(null);
@@ -94,6 +107,30 @@ export const InvestigationAnalysis: React.FC<InvestigationAnalysisProps> = ({
     }
   };
 
+  React.useEffect(() => {
+    if (!initialCase) return;
+    setInvestigationData(initialCase.originalAnalysis);
+    setCaseName(initialCase.caseName);
+    setAnalystNotes(initialCase.analystNotes);
+    setReviews(initialCase.reviews);
+  }, [initialCase]);
+
+  const getReview = (finding: InvestigationFinding): AnalystFindingReview => reviews.find(item => item.findingId === finding.finding_id) ?? {
+    findingId: finding.finding_id, decision: 'PENDING', editedTitle: finding.title, editedExplanation: finding.explanation, notes: '', reviewedAt: null
+  };
+
+  const updateReview = (finding: InvestigationFinding, patch: Partial<AnalystFindingReview>) => {
+    const current = getReview(finding);
+    const updated = { ...current, ...patch, reviewedAt: new Date().toISOString() };
+    setReviews(previous => [...previous.filter(item => item.findingId !== finding.finding_id), updated]);
+  };
+
+  const saveCurrentCase = () => {
+    if (!investigationData || !onSaveCase) return;
+    try { onSaveCase(investigationData, investigationData.findings.map(getReview), caseName, analystNotes, initialCase?.caseId); setCaseNotice('Case saved successfully in this browser.'); }
+    catch (error) { setCaseNotice(error instanceof Error ? error.message : 'Could not save case.'); }
+  };
+
   // Helper to format severity classes
   const getSeverityClass = (sev: FindingSeverity) => {
     switch (sev) {
@@ -134,6 +171,7 @@ export const InvestigationAnalysis: React.FC<InvestigationAnalysisProps> = ({
         </div>
 
         <div className={styles.headerActions}>
+          {onBackToCases && <button type="button" className={styles.tacticalBtnSecondary} onClick={onBackToCases}><ArrowLeft size={14}/><span>BACK TO CASES</span></button>}
           {availableTimelineEvents && availableTimelineEvents.length > 0 && (
             <button
               type="button"
@@ -361,6 +399,13 @@ export const InvestigationAnalysis: React.FC<InvestigationAnalysisProps> = ({
             </div>
           )}
 
+          <section className={styles.caseReviewPanel} aria-labelledby="case-review-heading">
+            <div className={styles.caseReviewHead}><div><span className={styles.caseReviewEyebrow}>DAY 7 / ANALYST WORKFLOW</span><h2 id="case-review-heading">Review & save case</h2><p>Original investigation output remains unchanged. Record analyst decisions separately.</p></div><button type="button" className={styles.tacticalBtnPrimary} onClick={saveCurrentCase}><Save size={15}/><span>{initialCase ? 'UPDATE SAVED CASE' : 'SAVE CASE'}</span></button></div>
+            <div className={styles.caseReviewFields}><label>Case name<input value={caseName} onChange={event => setCaseName(event.target.value)} maxLength={100} aria-label="Case name"/></label><label>Case ID<input value={initialCase?.caseId ?? 'Generated when saved'} readOnly aria-label="Case ID"/></label></div>
+            <label className={styles.caseNotesLabel}>Case notes<textarea value={analystNotes} onChange={event => setAnalystNotes(event.target.value)} rows={3} placeholder="Add investigation context, rationale, or follow-up notes…"/></label>
+            {caseNotice && <p className={styles.caseSaveNotice} role="status">{caseNotice}</p>}
+          </section>
+
           {/* Findings List */}
           <div className={styles.findingsSection}>
             <div className={styles.findingsHeader}>
@@ -413,6 +458,18 @@ export const InvestigationAnalysis: React.FC<InvestigationAnalysisProps> = ({
 
                     {/* Factual Explanation */}
                     <p className={styles.findingExplanation}>{f.explanation}</p>
+
+                    <div className={styles.analystReviewControls}>
+                      <div className={styles.reviewControlsTitle}><strong>ANALYST REVIEW</strong><span>{getReview(f).decision.replace(/_/g, ' ')}</span></div>
+                      <label>Reviewed title<input value={getReview(f).editedTitle} onChange={event => updateReview(f, { editedTitle: event.target.value, decision: 'EDITED' })} maxLength={180}/></label>
+                      <label>Reviewed explanation<textarea value={getReview(f).editedExplanation} onChange={event => updateReview(f, { editedExplanation: event.target.value, decision: 'EDITED' })} rows={2}/></label>
+                      <label>Analyst note<textarea value={getReview(f).notes} onChange={event => updateReview(f, { notes: event.target.value })} rows={2} placeholder="Why is this finding confirmed, rejected, or amended?"/></label>
+                      <div className={styles.reviewButtons}>
+                        <button type="button" onClick={() => updateReview(f, { decision: 'CONFIRMED' })}>CONFIRM FINDING</button>
+                        <button type="button" onClick={() => updateReview(f, { decision: 'REJECTED' })}>REJECT FINDING</button>
+                        <button type="button" onClick={() => updateReview(f, { decision: 'PENDING' })}>RESET REVIEW</button>
+                      </div>
+                    </div>
 
                     {/* Actionable Next Step Callout */}
                     <div className={styles.nextStepCallout}>
