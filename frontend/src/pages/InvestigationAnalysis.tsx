@@ -29,16 +29,26 @@ import {
 import {
   analyzeInvestigation,
   analyzeSampleInvestigation,
+  analyzeSampleTimeline,
 } from '../services/api';
+import { makeCaseId } from '../services/caseStorage';
 import styles from './InvestigationAnalysis.module.css';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, FileText } from 'lucide-react';
 
 interface InvestigationAnalysisProps {
   onNavigate?: (tab: NavSection) => void;
   availableTimelineEvents?: TimelineEvent[];
   initialCase?: SavedInvestigationCase | null;
-  onSaveCase?: (analysis: InvestigationResponse, reviews: AnalystFindingReview[], caseName: string, analystNotes: string, existingCaseId?: string) => void;
+  onSaveCase?: (
+    analysis: InvestigationResponse,
+    reviews: AnalystFindingReview[],
+    caseName: string,
+    analystNotes: string,
+    existingCaseId?: string,
+    timeline?: TimelineEvent[]
+  ) => void;
   onBackToCases?: () => void;
+  onOpenReport?: (record: SavedInvestigationCase) => void;
 }
 
 export const InvestigationAnalysis: React.FC<InvestigationAnalysisProps> = ({
@@ -47,6 +57,7 @@ export const InvestigationAnalysis: React.FC<InvestigationAnalysisProps> = ({
   initialCase,
   onSaveCase,
   onBackToCases,
+  onOpenReport,
 }) => {
   const [investigationData, setInvestigationData] = useState<InvestigationResponse | null>(initialCase?.originalAnalysis ?? null);
   const [caseName, setCaseName] = useState(initialCase?.caseName ?? 'Linux privilege-escalation investigation');
@@ -56,6 +67,7 @@ export const InvestigationAnalysis: React.FC<InvestigationAnalysisProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [lastAction, setLastAction] = useState<'sample' | 'timeline' | null>(null);
+  const [sampleTimeline, setSampleTimeline] = useState<TimelineEvent[] | null>(null);
 
   // Modal / Drawer state for inspecting evidence reference
   const [inspectedEventRef, setInspectedEventRef] = useState<string | null>(null);
@@ -67,8 +79,14 @@ export const InvestigationAnalysis: React.FC<InvestigationAnalysisProps> = ({
     setErrorMessage(null);
     setLastAction('sample');
     try {
-      const resp = await analyzeSampleInvestigation('sample-privilege-escalation.log');
+      const [resp, timelineResp] = await Promise.all([
+        analyzeSampleInvestigation('sample-privilege-escalation.log'),
+        analyzeSampleTimeline('sample-privilege-escalation.log').catch(() => null),
+      ]);
       setInvestigationData(resp);
+      if (timelineResp && timelineResp.timeline) {
+        setSampleTimeline(timelineResp.timeline);
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to execute sample investigation.';
       setErrorMessage(msg);
@@ -125,10 +143,44 @@ export const InvestigationAnalysis: React.FC<InvestigationAnalysisProps> = ({
     setReviews(previous => [...previous.filter(item => item.findingId !== finding.finding_id), updated]);
   };
 
+  const effectiveTimeline = availableTimelineEvents ?? sampleTimeline ?? initialCase?.timeline;
+
   const saveCurrentCase = () => {
     if (!investigationData || !onSaveCase) return;
-    try { onSaveCase(investigationData, investigationData.findings.map(getReview), caseName, analystNotes, initialCase?.caseId); setCaseNotice('Case saved successfully in this browser.'); }
-    catch (error) { setCaseNotice(error instanceof Error ? error.message : 'Could not save case.'); }
+    try {
+      onSaveCase(
+        investigationData,
+        investigationData.findings.map(getReview),
+        caseName,
+        analystNotes,
+        initialCase?.caseId,
+        effectiveTimeline
+      );
+      setCaseNotice('Case saved successfully in this browser.');
+    } catch (error) {
+      setCaseNotice(error instanceof Error ? error.message : 'Could not save case.');
+    }
+  };
+
+  const handleGenerateReport = () => {
+    if (!investigationData) return;
+    const now = new Date().toISOString();
+    const caseRecord: SavedInvestigationCase = {
+      caseId: initialCase?.caseId ?? makeCaseId(),
+      caseName: caseName.trim() || `Linux investigation — ${new Date(now).toLocaleDateString()}`,
+      createdAt: initialCase?.createdAt ?? now,
+      updatedAt: now,
+      verdict: investigationData.verdict,
+      totalEventsAnalyzed: investigationData.total_events_analyzed,
+      analysisMethod: investigationData.analysis_method,
+      originalAnalysis: investigationData,
+      reviews: investigationData.findings.map(getReview),
+      analystNotes,
+      timeline: effectiveTimeline,
+    };
+    if (onOpenReport) {
+      onOpenReport(caseRecord);
+    }
   };
 
   // Helper to format severity classes
@@ -147,8 +199,8 @@ export const InvestigationAnalysis: React.FC<InvestigationAnalysisProps> = ({
   };
 
   // Resolve matching timeline event from active events in memory if present
-  const resolvedInspectedEvent: TimelineEvent | undefined = inspectedEventRef && availableTimelineEvents
-    ? availableTimelineEvents.find((e) => e.event_id === inspectedEventRef)
+  const resolvedInspectedEvent: TimelineEvent | undefined = inspectedEventRef && effectiveTimeline
+    ? effectiveTimeline.find((e) => e.event_id === inspectedEventRef)
     : undefined;
 
   return (
@@ -197,16 +249,29 @@ export const InvestigationAnalysis: React.FC<InvestigationAnalysisProps> = ({
           </button>
 
           {investigationData && (
-            <button
-              type="button"
-              className={styles.tacticalBtnSecondary}
-              onClick={() => setInvestigationData(null)}
-              disabled={isLoading}
-              title="Clear current investigation findings"
-            >
-              <RotateCcw size={14} />
-              <span>CLEAR</span>
-            </button>
+            <>
+              {onOpenReport && (
+                <button
+                  type="button"
+                  className={styles.tacticalBtnSecondary}
+                  onClick={handleGenerateReport}
+                  title="Open formal incident report for this investigation"
+                >
+                  <FileText size={14} />
+                  <span>VIEW REPORT</span>
+                </button>
+              )}
+              <button
+                type="button"
+                className={styles.tacticalBtnSecondary}
+                onClick={() => setInvestigationData(null)}
+                disabled={isLoading}
+                title="Clear current investigation findings"
+              >
+                <RotateCcw size={14} />
+                <span>CLEAR</span>
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -400,7 +465,7 @@ export const InvestigationAnalysis: React.FC<InvestigationAnalysisProps> = ({
           )}
 
           <section className={styles.caseReviewPanel} aria-labelledby="case-review-heading">
-            <div className={styles.caseReviewHead}><div><span className={styles.caseReviewEyebrow}>DAY 7 / ANALYST WORKFLOW</span><h2 id="case-review-heading">Review & save case</h2><p>Original investigation output remains unchanged. Record analyst decisions separately.</p></div><button type="button" className={styles.tacticalBtnPrimary} onClick={saveCurrentCase}><Save size={15}/><span>{initialCase ? 'UPDATE SAVED CASE' : 'SAVE CASE'}</span></button></div>
+            <div className={styles.caseReviewHead}><div><span className={styles.caseReviewEyebrow}>DAY 7 / ANALYST WORKFLOW</span><h2 id="case-review-heading">Review & save case</h2><p>Original investigation output remains unchanged. Record analyst decisions separately.</p></div><div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>{onOpenReport && <button type="button" className={styles.tacticalBtnSecondary} onClick={handleGenerateReport}><FileText size={15}/><span>VIEW REPORT</span></button>}<button type="button" className={styles.tacticalBtnPrimary} onClick={saveCurrentCase}><Save size={15}/><span>{initialCase ? 'UPDATE SAVED CASE' : 'SAVE CASE'}</span></button></div></div>
             <div className={styles.caseReviewFields}><label>Case name<input value={caseName} onChange={event => setCaseName(event.target.value)} maxLength={100} aria-label="Case name"/></label><label>Case ID<input value={initialCase?.caseId ?? 'Generated when saved'} readOnly aria-label="Case ID"/></label></div>
             <label className={styles.caseNotesLabel}>Case notes<textarea value={analystNotes} onChange={event => setAnalystNotes(event.target.value)} rows={3} placeholder="Add investigation context, rationale, or follow-up notes…"/></label>
             {caseNotice && <p className={styles.caseSaveNotice} role="status">{caseNotice}</p>}

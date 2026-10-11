@@ -3,7 +3,7 @@ import styles from './Footer.module.css';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className={styles.footer} role="contentinfo">
+    <footer className={`${styles.footer} no-print`} data-no-print="true" role="contentinfo">
       <p className={styles.attributionText}>
         Built with Claude as part of the AB Talks 60-Day Claude AI Challenge.
       </p>

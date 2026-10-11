@@ -198,3 +198,15 @@
     display: none;
   }
 }
+
+@media print {
+  .header {
+    display: none !important;
+    height: 0 !important;
+    width: 0 !important;
+    position: absolute !important;
+    overflow: hidden !important;
+    visibility: hidden !important;
+  }
+}
+

@@ -59,8 +59,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
       id: 'reports' as NavSection,
       label: 'Reports',
       icon: FileText,
-      badge: 'Day 8+',
-      disabled: true,
+      badge: 'Day 8',
+      disabled: false,
     },
     {
       id: 'settings' as NavSection,
@@ -72,7 +72,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => 
   ];
 
   return (
-    <aside className={styles.sidebar}>
+    <aside className={`${styles.sidebar} no-print`} data-no-print="true">
       <nav className={styles.navSection} aria-label="Tactical Navigation">
         <div className={styles.sectionHeader}>
           <span className={styles.sectionLabel}>// DIRECTIVES</span>

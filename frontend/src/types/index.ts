@@ -215,4 +215,33 @@ export interface SavedInvestigationCase {
   originalAnalysis: InvestigationResponse;
   reviews: AnalystFindingReview[];
   analystNotes: string;
+  /** Preserved investigation timeline events for Day 8 reporting */
+  timeline?: TimelineEvent[];
+}
+
+/**
+ * Structured report data model for Day 8 HTML/PDF reporting.
+ */
+export interface CaseReportData {
+  caseId: string;
+  caseName: string;
+  generatedAt: string;
+  createdAt: string;
+  updatedAt: string;
+  verdict: InvestigationVerdict;
+  verdictExplanation: string;
+  analysisMethod: string;
+  totalEventsAnalyzed: number;
+  findingsCount: number;
+  confirmedCount: number;
+  rejectedCount: number;
+  editedCount: number;
+  pendingCount: number;
+  executiveSummary: string;
+  analystNotes: string;
+  originalFindings: InvestigationFinding[];
+  reviews: AnalystFindingReview[];
+  timeline: TimelineEvent[];
+  hasTimeline: boolean;
+  limitations: string[];
 }

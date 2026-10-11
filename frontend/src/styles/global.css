@@ -97,3 +97,57 @@ code, pre, .font-mono {
     scroll-behavior: auto !important;
   }
 }
+
+/* Print Media Overrides */
+@media print {
+  html,
+  body,
+  #root {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #0f172a !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    width: 100% !important;
+    overflow: visible !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    position: static !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Suppress application chrome, navigation, toolbars, and interactive controls */
+  .no-print,
+  [data-no-print="true"],
+  header:not([class*="docHeader"]):not([class*="doc-header"]),
+  aside,
+  footer,
+  nav,
+  button,
+  select,
+  input,
+  textarea {
+    display: none !important;
+    height: 0 !important;
+    width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 15mm 12mm 15mm 12mm;
+  }
+}
+

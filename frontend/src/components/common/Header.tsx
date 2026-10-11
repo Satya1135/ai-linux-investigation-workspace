@@ -25,7 +25,7 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className={styles.header}>
+    <header className={`${styles.header} no-print`} data-no-print="true">
       {/* Brand & Mission */}
       <div className={styles.brandGroup}>
         <div className={styles.logoBadge} aria-hidden="true">

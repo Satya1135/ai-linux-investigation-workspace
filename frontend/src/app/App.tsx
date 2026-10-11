@@ -8,6 +8,7 @@ import { EvidenceIntake } from '../pages/EvidenceIntake';
 import { InvestigationTimeline } from '../pages/InvestigationTimeline';
 import { InvestigationAnalysis } from '../pages/InvestigationAnalysis';
 import { CaseManagement } from '../pages/CaseManagement';
+import { Reports } from '../pages/Reports';
 import { readSavedCases, writeSavedCases, makeCaseId } from '../services/caseStorage';
 import { InvestigationResponse, SavedInvestigationCase, AnalystFindingReview } from '../types';
 import { NavSection, LogEventCandidate, TimelineEvent } from '../types';
@@ -28,22 +29,51 @@ export const AppContent: React.FC = () => {
   const [activeTimelineEvents, setActiveTimelineEvents] = useState<TimelineEvent[] | undefined>(undefined);
   const [savedCases, setSavedCases] = useState<SavedInvestigationCase[]>(() => readSavedCases());
   const [reopenedCase, setReopenedCase] = useState<SavedInvestigationCase | null>(null);
+  const [reportCase, setReportCase] = useState<SavedInvestigationCase | null>(null);
 
-  const handleSaveCase = (analysis: InvestigationResponse, reviews: AnalystFindingReview[], caseName: string, analystNotes: string, existingCaseId?: string) => {
+  const handleSaveCase = (
+    analysis: InvestigationResponse,
+    reviews: AnalystFindingReview[],
+    caseName: string,
+    analystNotes: string,
+    existingCaseId?: string,
+    timeline?: TimelineEvent[]
+  ) => {
     const now = new Date().toISOString();
     const existing = existingCaseId ? savedCases.find(item => item.caseId === existingCaseId) : undefined;
     const record: SavedInvestigationCase = {
       caseId: existing?.caseId ?? makeCaseId(),
       caseName: caseName.trim() || `Linux investigation — ${new Date(now).toLocaleDateString()}`,
-      createdAt: existing?.createdAt ?? now, updatedAt: now, verdict: analysis.verdict,
-      totalEventsAnalyzed: analysis.total_events_analyzed, analysisMethod: analysis.analysis_method,
-      originalAnalysis: analysis, reviews, analystNotes
+      createdAt: existing?.createdAt ?? now,
+      updatedAt: now,
+      verdict: analysis.verdict,
+      totalEventsAnalyzed: analysis.total_events_analyzed,
+      analysisMethod: analysis.analysis_method,
+      originalAnalysis: analysis,
+      reviews,
+      analystNotes,
+      timeline: timeline ?? existing?.timeline ?? activeTimelineEvents,
     };
     const next = existing ? savedCases.map(item => item.caseId === record.caseId ? record : item) : [record, ...savedCases];
-    writeSavedCases(next); setSavedCases(next); setReopenedCase(record); setCurrentTab('cases');
+    writeSavedCases(next);
+    setSavedCases(next);
+    setReopenedCase(record);
+    setReportCase(record);
+    setCurrentTab('cases');
   };
 
-  const handleReopenCase = (record: SavedInvestigationCase) => { setReopenedCase(record); setCurrentTab('cases'); };
+  const handleReopenCase = (record: SavedInvestigationCase) => {
+    setReopenedCase(record);
+    if (record.timeline && record.timeline.length > 0) {
+      setActiveTimelineEvents(record.timeline);
+    }
+    setCurrentTab('cases');
+  };
+
+  const handleOpenReport = (record: SavedInvestigationCase) => {
+    setReportCase(record);
+    setCurrentTab('reports');
+  };
 
 
   const handleNavigateToTimelineWithEvents = (events: LogEventCandidate[]) => {
@@ -83,10 +113,25 @@ export const AppContent: React.FC = () => {
                 initialCase={reopenedCase}
                 onSaveCase={handleSaveCase}
                 onBackToCases={() => { setReopenedCase(null); setCurrentTab('case-management'); }}
+                onOpenReport={handleOpenReport}
               />
             )}
             {currentTab === 'case-management' && (
-              <CaseManagement cases={savedCases} onCasesChange={setSavedCases} onReopen={handleReopenCase} />
+              <CaseManagement
+                cases={savedCases}
+                onCasesChange={setSavedCases}
+                onReopen={handleReopenCase}
+                onOpenReport={handleOpenReport}
+              />
+            )}
+            {currentTab === 'reports' && (
+              <Reports
+                cases={savedCases}
+                activeCase={reportCase}
+                activeTimelineEvents={activeTimelineEvents}
+                onNavigate={setCurrentTab}
+                onSelectCase={setReportCase}
+              />
             )}
           </div>
           <Footer />
