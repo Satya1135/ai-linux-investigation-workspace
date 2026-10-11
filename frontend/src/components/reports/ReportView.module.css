@@ -494,12 +494,23 @@
     break-inside: avoid;
     page-break-inside: avoid;
     border-bottom: 2px solid #94a3b8 !important;
-    padding-bottom: 1rem !important;
-    margin-bottom: 1.25rem !important;
+    padding-bottom: 0.5rem !important;
+    margin-bottom: 0.75rem !important;
     display: block !important;
   }
 
-  .docTitle,
+  .docTitle {
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 0.25rem !important;
+    color: #000000 !important;
+  }
+
+  .docEyebrow {
+    font-size: 0.7rem !important;
+    margin-bottom: 0.15rem !important;
+  }
+
   .metaValue,
   .findingTitle,
   .sectionTitle,
@@ -520,12 +531,24 @@
     border: 1px solid #cbd5e1 !important;
     color: #0f172a !important;
     display: grid !important;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
-    gap: 0.75rem !important;
-    padding: 0.75rem !important;
-    margin-top: 1rem !important;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
+    gap: 0.5rem !important;
+    padding: 0.5rem 0.75rem !important;
+    margin-top: 0.5rem !important;
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+
+  .metaItem {
+    gap: 0.15rem !important;
+  }
+
+  .metaLabel {
+    font-size: 0.625rem !important;
+  }
+
+  .metaValue {
+    font-size: 0.75rem !important;
   }
 
   .verdictBanner {
@@ -536,9 +559,19 @@
     border-bottom: 1px solid #e2e8f0 !important;
     break-inside: avoid;
     page-break-inside: avoid;
-    margin-bottom: 1.25rem !important;
-    padding: 0.875rem 1rem !important;
+    margin-bottom: 0.75rem !important;
+    padding: 0.55rem 0.75rem !important;
     display: block !important;
+  }
+
+  .verdictBanner h3 {
+    font-size: 0.95rem !important;
+    margin-bottom: 0.2rem !important;
+  }
+
+  .verdictBanner p {
+    font-size: 0.8rem !important;
+    line-height: 1.35 !important;
   }
 
   .verdictSuspicious {
@@ -548,7 +581,7 @@
 
   .section {
     display: block !important;
-    margin-bottom: 1.5rem !important;
+    margin-bottom: 1rem !important;
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
@@ -561,10 +594,10 @@
     break-after: avoid;
     page-break-after: avoid;
     border-bottom: 1.5px solid #cbd5e1 !important;
-    padding-bottom: 0.35rem !important;
-    margin-bottom: 0.75rem !important;
+    padding-bottom: 0.25rem !important;
+    margin-bottom: 0.5rem !important;
     color: #0f172a !important;
-    font-size: 1rem !important;
+    font-size: 0.95rem !important;
   }
 
   .summaryBox {
@@ -573,25 +606,33 @@
     border: 1px solid #cbd5e1 !important;
     background: #f8fafc !important;
     color: #1e293b !important;
-    padding: 0.875rem 1rem !important;
-    margin-bottom: 1rem !important;
-    font-size: 11.5px !important;
-    line-height: 1.5 !important;
+    padding: 0.6rem 0.75rem !important;
+    margin-bottom: 0.6rem !important;
+    font-size: 11px !important;
+    line-height: 1.4 !important;
     display: block !important;
   }
 
   .kpiGrid {
     border-top: 1px solid #cbd5e1 !important;
-    margin-top: 0.75rem !important;
-    padding-top: 0.75rem !important;
+    margin-top: 0.5rem !important;
+    padding-top: 0.5rem !important;
     display: grid !important;
     grid-template-columns: repeat(5, 1fr) !important;
-    gap: 0.5rem !important;
+    gap: 0.35rem !important;
   }
 
   .kpiCard {
     display: flex !important;
     flex-direction: column !important;
+  }
+
+  .kpiNumber {
+    font-size: 1.25rem !important;
+  }
+
+  .kpiLabel {
+    font-size: 0.625rem !important;
   }
 
   .analystCaseNotes {
@@ -603,19 +644,20 @@
     border-right: 1px solid #fef3c7 !important;
     border-bottom: 1px solid #fef3c7 !important;
     color: #1e293b !important;
-    margin-top: 0.75rem !important;
-    padding: 0.75rem 1rem !important;
-    font-size: 11.5px !important;
+    margin-top: 0.5rem !important;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
   }
 
   .findingCard {
     display: block !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
+    break-inside: auto !important;
+    page-break-inside: auto !important;
     border: 1px solid #cbd5e1 !important;
     background: #ffffff !important;
-    margin-bottom: 1rem !important;
-    padding: 0.875rem 1rem !important;
+    margin-bottom: 0.65rem !important;
+    padding: 0.65rem 0.85rem !important;
     border-radius: 4px !important;
     height: auto !important;
     min-height: 0 !important;
@@ -628,26 +670,32 @@
     justify-content: space-between !important;
     align-items: flex-start !important;
     flex-wrap: wrap !important;
-    gap: 0.5rem !important;
-    margin-bottom: 0.5rem !important;
+    gap: 0.35rem !important;
+    margin-bottom: 0.35rem !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    break-after: avoid !important;
+    page-break-after: avoid !important;
   }
 
   .findingTitle {
-    font-size: 0.95rem !important;
+    font-size: 0.9rem !important;
     font-weight: 600 !important;
   }
 
   .badgeRow {
     display: flex !important;
     flex-wrap: wrap !important;
-    gap: 0.35rem !important;
+    gap: 0.3rem !important;
   }
 
   .explanation {
     color: #334155 !important;
-    font-size: 11.5px !important;
-    line-height: 1.5 !important;
-    margin-bottom: 0.5rem !important;
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+    margin-bottom: 0.35rem !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
   .analystOverrideBox {
@@ -657,10 +705,12 @@
     border-right: 1px solid #e0f2fe !important;
     border-bottom: 1px solid #e0f2fe !important;
     color: #0f172a !important;
-    margin-bottom: 0.5rem !important;
-    padding: 0.5rem 0.75rem !important;
-    font-size: 11px !important;
+    margin-bottom: 0.35rem !important;
+    padding: 0.4rem 0.6rem !important;
+    font-size: 10.5px !important;
     display: block !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
   .analystNotesBox {
@@ -670,30 +720,36 @@
     border-right: 1px solid #fef3c7 !important;
     border-bottom: 1px solid #fef3c7 !important;
     color: #0f172a !important;
-    margin-bottom: 0.5rem !important;
-    padding: 0.5rem 0.75rem !important;
-    font-size: 11px !important;
+    margin-bottom: 0.35rem !important;
+    padding: 0.4rem 0.6rem !important;
+    font-size: 10.5px !important;
     display: block !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
   .nextStepBox {
     background: #f8fafc !important;
     border: 1px dashed #94a3b8 !important;
     color: #0f172a !important;
-    margin-bottom: 0.5rem !important;
-    padding: 0.5rem 0.75rem !important;
-    font-size: 11px !important;
+    margin-bottom: 0.35rem !important;
+    padding: 0.4rem 0.6rem !important;
+    font-size: 10.5px !important;
     display: block !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
   .provenanceBox {
     background: #f1f5f9 !important;
     border: 1px solid #e2e8f0 !important;
     color: #334155 !important;
-    padding: 0.5rem 0.75rem !important;
-    font-size: 10px !important;
-    margin-top: 0.5rem !important;
+    padding: 0.4rem 0.6rem !important;
+    font-size: 9.5px !important;
+    margin-top: 0.35rem !important;
     display: block !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
   .tableWrapper {
@@ -709,7 +765,7 @@
   .table {
     border-collapse: collapse !important;
     width: 100% !important;
-    font-size: 10px !important;
+    font-size: 9.5px !important;
     break-inside: auto !important;
     page-break-inside: auto !important;
   }
@@ -726,15 +782,15 @@
     background: #f1f5f9 !important;
     border: 1px solid #cbd5e1 !important;
     color: #1e293b !important;
-    padding: 0.35rem 0.45rem !important;
-    font-size: 9.5px !important;
+    padding: 0.3rem 0.4rem !important;
+    font-size: 9px !important;
   }
 
   .table td {
     border: 1px solid #cbd5e1 !important;
     color: #0f172a !important;
-    padding: 0.35rem 0.45rem !important;
-    font-size: 10px !important;
+    padding: 0.3rem 0.4rem !important;
+    font-size: 9.5px !important;
   }
 
   .table tr {
@@ -757,22 +813,22 @@
     background: #f8fafc !important;
     border: 1px solid #cbd5e1 !important;
     color: #475569 !important;
-    padding: 0.75rem 1rem !important;
-    font-size: 11.5px !important;
+    padding: 0.6rem 0.85rem !important;
+    font-size: 11px !important;
   }
 
   .limitationsList {
     color: #334155 !important;
-    font-size: 11px !important;
-    line-height: 1.5 !important;
+    font-size: 10.5px !important;
+    line-height: 1.4 !important;
   }
 
   .badge {
     border: 1px solid #64748b !important;
     background: #f8fafc !important;
     color: #0f172a !important;
-    font-size: 9.5px !important;
-    padding: 0.15rem 0.4rem !important;
+    font-size: 9px !important;
+    padding: 0.12rem 0.35rem !important;
     display: inline-block !important;
   }
 
@@ -825,7 +881,7 @@
   }
 
   @page {
-    margin: 15mm 12mm 15mm 12mm;
+    margin: 10mm 10mm 10mm 10mm;
     size: A4 portrait;
   }
 }

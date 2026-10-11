@@ -145,9 +145,22 @@ code, pre, .font-mono {
     overflow: hidden !important;
   }
 
+  /* Ensure document structural tags cannot clip or restrict print height */
+  main,
+  article,
+  section {
+    overflow: visible !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    position: static !important;
+  }
+
   @page {
     size: A4 portrait;
-    margin: 15mm 12mm 15mm 12mm;
+    margin: 10mm 10mm 10mm 10mm;
   }
 }
 
