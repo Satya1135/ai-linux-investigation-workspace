@@ -790,8 +790,10 @@
   border: 1px solid var(--border-active);
   border-radius: var(--radius-md);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
-  max-width: 720px;
+  max-width: min(calc(100vw - 1.5rem), 720px);
   width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -830,6 +832,70 @@
   overflow-y: auto;
 }
 
-
 /* Day 7 analyst review and case management */
-.caseReviewPanel{margin:1rem 0 1.5rem;padding:1.1rem;background:linear-gradient(145deg,rgba(13,27,29,.96),rgba(6,16,17,.96));border:1px solid var(--border-medium);border-radius:var(--radius-lg);display:flex;flex-direction:column;gap:1rem}.caseReviewHead{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}.caseReviewHead h2{font-size:1.1rem;margin:.25rem 0}.caseReviewHead p{font-size:.8rem;color:var(--text-secondary);margin:0;line-height:1.5}.caseReviewEyebrow{font:600 .68rem var(--font-mono);color:var(--accent-cyan);letter-spacing:.1em}.caseReviewFields{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}.caseReviewFields label,.caseNotesLabel,.analystReviewControls label{display:flex;flex-direction:column;gap:.4rem;color:var(--text-secondary);font-size:.75rem}.caseReviewFields input,.caseNotesLabel textarea,.analystReviewControls input,.analystReviewControls textarea{width:100%;box-sizing:border-box;background:rgba(3,7,8,.6);color:var(--text-primary);border:1px solid var(--border-medium);border-radius:var(--radius-sm);padding:.65rem .7rem;font:inherit;resize:vertical}.caseReviewFields input:read-only{color:var(--text-muted)}.caseSaveNotice{font-size:.8rem;color:var(--text-emerald);margin:0}.analystReviewControls{display:flex;flex-direction:column;gap:.7rem;margin-top:1rem;padding:1rem;border:1px solid var(--border-subtle);border-radius:var(--radius-md);background:rgba(2,9,10,.45)}.reviewControlsTitle{display:flex;align-items:center;justify-content:space-between;gap:.5rem;font:600 .7rem var(--font-mono);letter-spacing:.07em;color:var(--accent-cyan)}.reviewControlsTitle span{color:var(--text-amber);font-size:.66rem}.reviewButtons{display:flex;flex-wrap:wrap;gap:.5rem}.reviewButtons button{border:1px solid var(--border-medium);background:var(--bg-surface-hover);color:var(--text-secondary);border-radius:var(--radius-sm);padding:.55rem .7rem;font:600 .68rem var(--font-mono);cursor:pointer}.reviewButtons button:first-child{color:var(--text-emerald);border-color:rgba(114,196,154,.35)}.reviewButtons button:nth-child(2){color:var(--text-rose);border-color:rgba(217,74,69,.35)}.reviewButtons button:hover{border-color:var(--border-active)}.caseReviewPanel button:focus-visible,.analystReviewControls input:focus-visible,.analystReviewControls textarea:focus-visible,.caseReviewFields input:focus-visible,.caseNotesLabel textarea:focus-visible{outline:2px solid var(--accent-cyan);outline-offset:2px}@media(max-width:640px){.caseReviewFields{grid-template-columns:1fr}.caseReviewHead{align-items:flex-start;flex-direction:column}.caseReviewHead button{width:100%}.reviewButtons button{flex:1}}
+.caseReviewPanel{margin:1rem 0 1.5rem;padding:1.1rem;background:linear-gradient(145deg,rgba(13,27,29,.96),rgba(6,16,17,.96));border:1px solid var(--border-medium);border-radius:var(--radius-lg);display:flex;flex-direction:column;gap:1rem}.caseReviewHead{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}.caseReviewHead h2{font-size:1.1rem;margin:.25rem 0}.caseReviewHead p{font-size:.8rem;color:var(--text-secondary);margin:0;line-height:1.5}.caseReviewEyebrow{font:600 .68rem var(--font-mono);color:var(--accent-cyan);letter-spacing:.1em}.caseReviewFields{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}.caseReviewFields label,.caseNotesLabel,.analystReviewControls label{display:flex;flex-direction:column;gap:.4rem;color:var(--text-secondary);font-size:.75rem}.caseReviewFields input,.caseNotesLabel textarea,.analystReviewControls input,.analystReviewControls textarea{width:100%;box-sizing:border-box;background:rgba(3,7,8,.6);color:var(--text-primary);border:1px solid var(--border-medium);border-radius:var(--radius-sm);padding:.65rem .7rem;font:inherit;resize:vertical}.caseReviewFields input:read-only{color:var(--text-muted)}.caseSaveNotice{font-size:.8rem;color:var(--text-emerald);margin:0}.analystReviewControls{display:flex;flex-direction:column;gap:.7rem;margin-top:1rem;padding:1rem;border:1px solid var(--border-subtle);border-radius:var(--radius-md);background:rgba(2,9,10,.45)}.reviewControlsTitle{display:flex;align-items:center;justify-content:space-between;gap:.5rem;font:600 .7rem var(--font-mono);letter-spacing:.07em;color:var(--accent-cyan)}.reviewControlsTitle span{color:var(--text-amber);font-size:.66rem}.reviewButtons{display:flex;flex-wrap:wrap;gap:.5rem}.reviewButtons button{border:1px solid var(--border-medium);background:var(--bg-surface-hover);color:var(--text-secondary);border-radius:var(--radius-sm);padding:.55rem .7rem;font:600 .68rem var(--font-mono);cursor:pointer}.reviewButtons button:first-child{color:var(--text-emerald);border-color:rgba(114,196,154,.35)}.reviewButtons button:nth-child(2){color:var(--text-rose);border-color:rgba(217,74,69,.35)}.reviewButtons button:hover{border-color:var(--border-active)}.caseReviewPanel button:focus-visible,.analystReviewControls input:focus-visible,.analystReviewControls textarea:focus-visible,.caseReviewFields input:focus-visible,.caseNotesLabel textarea:focus-visible{outline:2px solid var(--accent-cyan);outline-offset:2px}
+
+@media (max-width: 1024px) {
+  .container {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+    gap: 1.25rem;
+  }
+  .heading {
+    font-size: 1.25rem;
+  }
+  .headerActions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .verdictBanner {
+    padding: 1.25rem 1rem;
+  }
+  .kpiGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .findingCard {
+    padding: 1.25rem 1rem;
+  }
+  .caseReviewFields {
+    grid-template-columns: 1fr;
+  }
+  .caseReviewHead {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .caseReviewHead button {
+    width: 100%;
+  }
+  .reviewButtons button {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0.75rem 0.5rem;
+    gap: 1rem;
+  }
+  .heading {
+    font-size: 1.125rem;
+  }
+  .kpiGrid {
+    grid-template-columns: 1fr;
+  }
+  .findingCard {
+    padding: 1rem 0.75rem;
+  }
+  .rawLogBox {
+    font-size: 0.6875rem;
+    max-height: 150px;
+  }
+  .eventInspectModal {
+    padding: 1rem 0.85rem;
+  }
+}

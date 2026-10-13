@@ -455,6 +455,12 @@ export const InvestigationTimeline: React.FC<InvestigationTimelineProps> = ({
                   suspiciousOnlyFilter ? styles.suspiciousFilterActive : ''
                 }`}
                 onClick={() => setSuspiciousOnlyFilter(!suspiciousOnlyFilter)}
+                aria-pressed={suspiciousOnlyFilter}
+                aria-label={
+                  suspiciousOnlyFilter
+                    ? 'Show all events'
+                    : `Filter to only suspicious events (${suspiciousCount})`
+                }
                 title={
                   suspiciousOnlyFilter
                     ? 'Show all events'
@@ -486,6 +492,7 @@ export const InvestigationTimeline: React.FC<InvestigationTimelineProps> = ({
                     placeholder="Search logs, processes, hosts, rules, types..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    aria-label="Search logs, processes, hosts, rules, types"
                   />
                   {searchQuery && (
                     <button
@@ -496,6 +503,7 @@ export const InvestigationTimeline: React.FC<InvestigationTimelineProps> = ({
                         searchInputRef.current?.focus();
                       }}
                       title="Clear search query"
+                      aria-label="Clear search query"
                     >
                       <X size={12} />
                     </button>
@@ -514,6 +522,7 @@ export const InvestigationTimeline: React.FC<InvestigationTimelineProps> = ({
                       className={styles.resetFiltersBtn}
                       onClick={handleResetFilters}
                       title="Reset all search queries, stage filters, and suspicious toggles"
+                      aria-label="Reset all active filters"
                     >
                       <RotateCcw size={11} />
                       <span>RESET FILTERS</span>
@@ -538,6 +547,7 @@ export const InvestigationTimeline: React.FC<InvestigationTimelineProps> = ({
                         className={styles.chipRemoveBtn}
                         onClick={() => setActiveStageFilter('ALL')}
                         title="Remove stage filter"
+                        aria-label={`Remove ${activeStageFilter} stage filter`}
                       >
                         <X size={11} />
                       </button>
@@ -553,6 +563,7 @@ export const InvestigationTimeline: React.FC<InvestigationTimelineProps> = ({
                         className={styles.chipRemoveBtn}
                         onClick={() => setSuspiciousOnlyFilter(false)}
                         title="Remove suspicious only filter"
+                        aria-label="Remove suspicious only filter"
                       >
                         <X size={11} />
                       </button>
@@ -567,6 +578,7 @@ export const InvestigationTimeline: React.FC<InvestigationTimelineProps> = ({
                         className={styles.chipRemoveBtn}
                         onClick={() => setSearchQuery('')}
                         title="Clear search query"
+                        aria-label="Clear search query"
                       >
                         <X size={11} />
                       </button>
@@ -592,6 +604,15 @@ export const InvestigationTimeline: React.FC<InvestigationTimelineProps> = ({
                         isCritical ? styles.cardCritical : ''
                       }`}
                       onClick={() => setSelectedEventId(evt.event_id)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setSelectedEventId(evt.event_id);
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Event ${evt.event_id}: ${evt.message || evt.attack_stage}`}
                     >
                       {/* Timeline Node Icon / Dot */}
                       <div
@@ -773,6 +794,7 @@ export const InvestigationTimeline: React.FC<InvestigationTimelineProps> = ({
                       className={styles.copyBtn}
                       onClick={() => copyToClipboard(selectedEvent.raw_message)}
                       title="Copy raw log line"
+                      aria-label="Copy verbatim log line"
                     >
                       {hasCopiedMessage ? (
                         <Check size={12} color="var(--accent-emerald)" />

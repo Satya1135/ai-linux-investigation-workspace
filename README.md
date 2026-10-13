@@ -16,13 +16,15 @@ An advanced security operations platform designed for rapid forensic triage, evi
 ### Backend
 - **Framework**: Python 3.12+ / FastAPI
 - **Data Validation & Settings**: Pydantic v2 / Pydantic Settings
-- **Database & Auth**: Supabase PostgreSQL & Supabase Auth
-- **AI Engine**: Anthropic Claude API (Backend-mediated, configurable model)
-- **Reporting**: WeasyPrint PDF Engine
+- **Database & Auth**: Supabase PostgreSQL & Supabase Auth (Configured, auth enforcement pending architecture approval)
+- **Detection & Investigation Engine**: Deterministic heuristic rules engine (privilege escalation & suspicious activity detection)
+- **AI Core**: Anthropic Claude API integration scaffold (Backend schema ready; heuristic analysis active)
+- **Reporting**: Browser-native print-to-PDF & standalone HTML export with self-contained styles
 
 ### Testing & Quality
-- **Backend Testing**: Pytest, HTTPX
-- **End-to-End Testing**: Playwright
+- **Backend Testing**: Pytest, HTTPX (71+ unit & integration tests)
+- **Report Verification**: Automated Node.js verification suite (`scripts/verify_reports.mjs`)
+- **Frontend Verification**: TypeScript strict mode (`tsc`) & Vite production bundler
 
 ---
 
@@ -126,15 +128,19 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 - [Setup & Installation Guide](docs/SETUP.md)
 - [Environment Configuration](docs/ENVIRONMENT.md)
 - [Project Structure Details](docs/PROJECT-STRUCTURE.md)
-- [Day 3 Progress Summary](docs/DAY3-SUMMARY.md)
+- [Day 4 Evidence Intake](docs/DAY4-EVIDENCE-INTAKE.md)
+- [Day 5 Timeline Investigation](docs/DAY5-TIMELINE.md)
+- [Day 6 Investigation Pipeline](docs/DAY6-INVESTIGATION-PIPELINE.md)
+- [Day 7 Case Management](docs/DAY7-CASE-MANAGEMENT.md)
+- [Day 8 Final Incident Reports & PDF Export](docs/DAY8-REPORTS.md)
 
 ---
 
-## Current Status (Day 3)
-- [x] Approved directory structure initialized
-- [x] Backend FastAPI application created with `/health` endpoint
-- [x] Backend test suite configured with Pytest & HTTPX
-- [x] Frontend React + Vite + TypeScript application initialized
-- [x] TanStack Query integrated
-- [x] Dark cybersecurity UI design system & responsive layout shell created
-- [x] Environment configuration templates established
+## Current Status & Capabilities
+- [x] **Day 3 — Project Foundation**: FastAPI backend (`/health`), React 18 + Vite frontend, cybersecurity design system, TanStack Query.
+- [x] **Day 4 — Evidence Intake**: Linux log upload (.log, .txt up to 5 MB), log paste, synthetic sample scenario loading, deterministic SHA-256 integrity verification, safe line normalization, and candidate event extraction without code execution.
+- [x] **Day 5 — Timeline Investigation**: Chronological event ordering, time delta analysis, multi-type event categorization, and interactive timeline filtering.
+- [x] **Day 6 — Defensive Investigation Pipeline**: Deterministic detection pipeline identifying privilege escalation, suspicious sudo usage, persistence, and brute force patterns with MITRE ATT&CK mapping.
+- [x] **Day 7 — Analyst Case Management**: Persistent browser-local case storage, finding review workflows (CONFIRMED, REJECTED, EDITED, PENDING), and case notes.
+- [x] **Day 8 — Incident Reports & PDF Export**: Executive summary synthesis, verdict classification, timeline integration, HTML injection escaping, browser-native print-to-PDF with print-optimized CSS pagination, and standalone self-contained HTML export.
+- [x] **Day 9 — Security Hardening & Alignment**: CORS origin restrictions (Render production frontend + localhost), strict sample path traversal rejection (`Path.is_relative_to` boundary checks), and dashboard synchronization.

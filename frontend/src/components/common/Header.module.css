@@ -184,6 +184,27 @@
   50% { opacity: 0.4; transform: scale(0.85); }
 }
 
+.mobileNavToggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  color: var(--accent-cyan-bright);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.mobileNavToggle:hover {
+  background: var(--bg-surface-elevated);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(32, 207, 196, 0.25);
+}
+
 @media (max-width: 900px) {
   .brandSubtitle {
     display: none;
@@ -193,9 +214,34 @@
   }
 }
 
+@media (max-width: 768px) {
+  .mobileNavToggle {
+    display: inline-flex;
+  }
+  .header {
+    padding: 0 1rem;
+  }
+}
+
 @media (max-width: 640px) {
   .statusGrid {
     display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 0 0.75rem;
+  }
+  .brandTitle {
+    font-size: 0.875rem;
+  }
+  .tacticalTag {
+    display: none;
+  }
+  .logoBadge {
+    width: 34px;
+    height: 34px;
   }
 }
 

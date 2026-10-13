@@ -84,6 +84,12 @@ button {
   background: none;
 }
 
+/* Accessible Focus Visibility */
+:focus-visible {
+  outline: 2px solid var(--accent-cyan-bright);
+  outline-offset: 2px;
+}
+
 code, pre, .font-mono {
   font-family: var(--font-mono);
 }

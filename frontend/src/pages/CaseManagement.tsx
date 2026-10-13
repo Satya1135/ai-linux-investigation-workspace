@@ -17,6 +17,17 @@ export const CaseManagement: React.FC<CaseManagementProps> = ({ cases, onCasesCh
   const [status, setStatus] = useState('ALL');
   const [selected, setSelected] = useState<SavedInvestigationCase | null>(null);
   const [notice, setNotice] = useState('');
+
+  // Close modal on Escape key
+  React.useEffect(() => {
+    if (!selected) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSelected(null);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selected]);
+
   const filtered = useMemo(() => cases.filter(record => {
     const matchesQuery = `${record.caseId} ${record.caseName} ${record.verdict}`.toLowerCase().includes(query.toLowerCase());
     const decisions = record.reviews.map(item => item.decision);

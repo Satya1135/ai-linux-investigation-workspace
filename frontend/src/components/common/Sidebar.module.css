@@ -195,14 +195,98 @@
   font-size: 0.625rem;
 }
 
+.backdrop {
+  display: none;
+}
+
+.mobileDrawerHeader {
+  display: none;
+}
+
 @media (max-width: 768px) {
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: static;
-    border-right: none;
-    border-bottom: 1px solid var(--border-medium);
+  .backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(3, 7, 8, 0.75);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 998;
+    animation: fadeIn 150ms ease-out;
   }
+
+  .mobileDrawerHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.25rem 0.75rem 0.25rem;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 0.75rem;
+  }
+
+  .mobileDrawerTitle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent-cyan-bright);
+    letter-spacing: 0.05em;
+  }
+
+  .mobileCloseBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-xs);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .mobileCloseBtn:hover {
+    color: var(--accent-cyan-bright);
+    border-color: var(--accent-cyan);
+    background: rgba(32, 207, 196, 0.1);
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 290px;
+    max-width: 85vw;
+    height: 100vh;
+    z-index: 999;
+    border-right: 1px solid var(--border-medium);
+    border-bottom: none;
+    transform: translateX(-100%);
+    transition: transform var(--transition-normal);
+    overflow-y: auto;
+    background-color: var(--bg-surface-elevated);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.85);
+    padding: 1rem 0.875rem 1.5rem 0.875rem;
+  }
+
+  .sidebar.mobileOpen {
+    transform: translateX(0);
+  }
+
+  .navItem {
+    padding: 0.75rem 0.875rem;
+    min-height: 44px; /* Touch target minimum height */
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @media print {

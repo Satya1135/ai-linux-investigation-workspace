@@ -72,6 +72,16 @@ export const InvestigationAnalysis: React.FC<InvestigationAnalysisProps> = ({
   // Modal / Drawer state for inspecting evidence reference
   const [inspectedEventRef, setInspectedEventRef] = useState<string | null>(null);
 
+  // Close modal on Escape key
+  React.useEffect(() => {
+    if (!inspectedEventRef) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setInspectedEventRef(null);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [inspectedEventRef]);
+
   // Trigger analysis on sample scenario
   const handleAnalyzeSample = async () => {
     if (isLoading) return;
@@ -562,6 +572,7 @@ export const InvestigationAnalysis: React.FC<InvestigationAnalysisProps> = ({
                               className={styles.evidenceRefPill}
                               onClick={() => setInspectedEventRef(evtId)}
                               title={`Inspect event reference ${evtId} (Original line #${origIdx})`}
+                              aria-label={`Inspect event reference ${evtId} (line #${origIdx})`}
                             >
                               <Terminal size={11} color="var(--accent-cyan)" />
                               <span>{evtId}</span>
@@ -600,10 +611,16 @@ export const InvestigationAnalysis: React.FC<InvestigationAnalysisProps> = ({
 
       {/* Evidence Provenance Inspection Modal */}
       {inspectedEventRef && (
-        <div className={styles.eventInspectOverlay} onClick={() => setInspectedEventRef(null)}>
-          <div className={styles.eventInspectModal} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.eventInspectOverlay} onClick={() => setInspectedEventRef(null)} role="presentation">
+          <div
+            className={styles.eventInspectModal}
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="inspect-modal-title"
+          >
             <div className={styles.inspectModalHeader}>
-              <div className={styles.inspectModalTitle}>
+              <div id="inspect-modal-title" className={styles.inspectModalTitle}>
                 <Terminal size={18} color="var(--accent-cyan-bright)" />
                 <span>EVIDENCE REFERENCE: {inspectedEventRef}</span>
               </div>
@@ -611,6 +628,7 @@ export const InvestigationAnalysis: React.FC<InvestigationAnalysisProps> = ({
                 type="button"
                 className={styles.dismissBtn}
                 onClick={() => setInspectedEventRef(null)}
+                aria-label="Close evidence inspection modal"
               >
                 <X size={18} />
               </button>

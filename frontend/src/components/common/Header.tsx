@@ -1,10 +1,20 @@
 import React from 'react';
-import { Shield, Activity, Cpu, Server } from 'lucide-react';
+import { Shield, Activity, Cpu, Server, Menu, X } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchHealth, API_BASE_URL } from '../../services/api';
 import styles from './Header.module.css';
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  isMobileNavOpen?: boolean;
+  onToggleMobileNav?: () => void;
+  mobileToggleRef?: React.RefObject<HTMLButtonElement>;
+}
+
+export const Header: React.FC<HeaderProps> = ({
+  isMobileNavOpen = false,
+  onToggleMobileNav,
+  mobileToggleRef,
+}) => {
   const { data: healthData, isError, isLoading } = useQuery({
     queryKey: ['health'],
     queryFn: fetchHealth,
@@ -28,6 +38,19 @@ export const Header: React.FC = () => {
     <header className={`${styles.header} no-print`} data-no-print="true">
       {/* Brand & Mission */}
       <div className={styles.brandGroup}>
+        {onToggleMobileNav && (
+          <button
+            ref={mobileToggleRef}
+            type="button"
+            className={styles.mobileNavToggle}
+            onClick={onToggleMobileNav}
+            aria-expanded={isMobileNavOpen}
+            aria-controls="mobile-nav-sidebar"
+            aria-label={isMobileNavOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          >
+            {isMobileNavOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        )}
         <div className={styles.logoBadge} aria-hidden="true">
           <Shield size={22} className={styles.shieldIcon} />
           <div className={styles.cornerDotTL} />

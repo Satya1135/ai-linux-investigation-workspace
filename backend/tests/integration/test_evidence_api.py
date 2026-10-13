@@ -191,3 +191,15 @@ def test_missing_sample_rejected():
     )
     assert response.status_code == 404
     assert "not exist" in response.json()["detail"].lower()
+
+
+def test_path_traversal_sample_rejected():
+    """
+    Request with path traversal attempts returns 404.
+    """
+    response = client.post(
+        "/api/v1/evidence/sample",
+        json={"sample_name": "../../../etc/passwd"},
+    )
+    assert response.status_code == 404
+    assert "not exist" in response.json()["detail"].lower()

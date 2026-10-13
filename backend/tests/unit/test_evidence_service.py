@@ -232,5 +232,15 @@ def test_sample_scenario_not_found_or_traversal_rejected():
     with pytest.raises(SampleNotFoundError):
         EvidenceService.process_sample_scenario("non_existent_file.log")
 
-    with pytest.raises(SampleNotFoundError):
-        EvidenceService.process_sample_scenario("../../../etc/passwd")
+    traversal_payloads = [
+        "../../../etc/passwd",
+        "../sample-privilege-escalation.log",
+        "..\\sample-privilege-escalation.log",
+        "/sample-privilege-escalation.log",
+        "subdir/sample-privilege-escalation.log",
+        "..",
+        ".",
+    ]
+    for payload in traversal_payloads:
+        with pytest.raises(SampleNotFoundError):
+            EvidenceService.process_sample_scenario(payload)

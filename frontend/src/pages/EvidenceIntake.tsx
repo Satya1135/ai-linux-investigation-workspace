@@ -566,11 +566,21 @@ export const EvidenceIntake: React.FC<EvidenceIntakeProps> = ({ onNavigateToTime
                       accept=".log,.txt"
                       className={styles.fileInputHidden}
                       onChange={handleFileChange}
+                      aria-label="Upload evidence file"
                     />
 
                     <div
                       className={`${styles.dropZone} ${isDragActive ? styles.dragActive : ''}`}
                       onClick={() => fileInputRef.current?.click()}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          fileInputRef.current?.click();
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      aria-label="Upload Linux log file drop zone"
                       onDragOver={(e) => {
                         e.preventDefault();
                         setIsDragActive(true);
@@ -738,6 +748,7 @@ export const EvidenceIntake: React.FC<EvidenceIntakeProps> = ({ onNavigateToTime
                     className={styles.copyButton}
                     onClick={() => copyToClipboard(evidence.original_content_sha256, 'hash')}
                     title="Copy SHA-256 Hash"
+                    aria-label="Copy SHA-256 Hash"
                   >
                     {hasCopiedHash ? <Check size={14} color="var(--accent-emerald)" /> : <Copy size={14} />}
                     <span>{hasCopiedHash ? 'COPIED' : 'COPY'}</span>
@@ -766,6 +777,7 @@ export const EvidenceIntake: React.FC<EvidenceIntakeProps> = ({ onNavigateToTime
                   placeholder="Filter by keyword, process, host..."
                   value={eventSearchQuery}
                   onChange={(e) => setEventSearchQuery(e.target.value)}
+                  aria-label="Filter normalized event candidates"
                 />
               </div>
             </div>
@@ -818,6 +830,16 @@ export const EvidenceIntake: React.FC<EvidenceIntakeProps> = ({ onNavigateToTime
             <div
               className={styles.originalHeader}
               onClick={() => setIsOriginalExpanded(!isOriginalExpanded)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setIsOriginalExpanded(!isOriginalExpanded);
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-expanded={isOriginalExpanded}
+              aria-label={isOriginalExpanded ? 'Collapse raw forensic evidence buffer' : 'Expand raw forensic evidence buffer'}
             >
               <div className={styles.originalTitle}>
                 <Terminal size={18} color="var(--accent-cyan)" />
@@ -833,6 +855,7 @@ export const EvidenceIntake: React.FC<EvidenceIntakeProps> = ({ onNavigateToTime
                     copyToClipboard(evidence.original_content, 'raw');
                   }}
                   title="Copy raw verbatim evidence text"
+                  aria-label="Copy raw verbatim evidence text"
                 >
                   {hasCopiedRaw ? <Check size={14} color="var(--accent-emerald)" /> : <Copy size={14} />}
                   <span>{hasCopiedRaw ? 'COPIED' : 'COPY RAW TEXT'}</span>
@@ -867,7 +890,7 @@ export const EvidenceIntake: React.FC<EvidenceIntakeProps> = ({ onNavigateToTime
               <CheckCircle2 size={16} color="var(--accent-emerald)" />
               <span>Evidence validated, SHA-256 hashed, and normalized. Ready for downstream investigation.</span>
             </div>
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
               <button
                 type="button"
                 className={styles.tacticalBtnSecondary}

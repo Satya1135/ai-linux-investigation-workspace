@@ -25,11 +25,18 @@ const queryClient = new QueryClient({
 
 export const AppContent: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<NavSection>('dashboard');
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState<boolean>(false);
+  const mobileToggleRef = React.useRef<HTMLButtonElement>(null);
   const [activeEvidenceEvents, setActiveEvidenceEvents] = useState<LogEventCandidate[] | undefined>(undefined);
   const [activeTimelineEvents, setActiveTimelineEvents] = useState<TimelineEvent[] | undefined>(undefined);
   const [savedCases, setSavedCases] = useState<SavedInvestigationCase[]>(() => readSavedCases());
   const [reopenedCase, setReopenedCase] = useState<SavedInvestigationCase | null>(null);
   const [reportCase, setReportCase] = useState<SavedInvestigationCase | null>(null);
+
+  const handleSelectTab = (tab: NavSection) => {
+    setCurrentTab(tab);
+    setIsMobileNavOpen(false);
+  };
 
   const handleSaveCase = (
     analysis: InvestigationResponse,
@@ -59,7 +66,7 @@ export const AppContent: React.FC = () => {
     setSavedCases(next);
     setReopenedCase(record);
     setReportCase(record);
-    setCurrentTab('cases');
+    handleSelectTab('cases');
   };
 
   const handleReopenCase = (record: SavedInvestigationCase) => {
@@ -67,33 +74,42 @@ export const AppContent: React.FC = () => {
     if (record.timeline && record.timeline.length > 0) {
       setActiveTimelineEvents(record.timeline);
     }
-    setCurrentTab('cases');
+    handleSelectTab('cases');
   };
 
   const handleOpenReport = (record: SavedInvestigationCase) => {
     setReportCase(record);
-    setCurrentTab('reports');
+    handleSelectTab('reports');
   };
-
 
   const handleNavigateToTimelineWithEvents = (events: LogEventCandidate[]) => {
     setActiveEvidenceEvents(events);
-    setCurrentTab('investigation');
+    handleSelectTab('investigation');
   };
 
   const handleNavigateToAnalysisWithEvents = (events: TimelineEvent[]) => {
     setActiveTimelineEvents(events);
-    setCurrentTab('cases');
+    handleSelectTab('cases');
   };
 
   return (
     <div className={styles.layout}>
-      <Header />
+      <Header
+        isMobileNavOpen={isMobileNavOpen}
+        onToggleMobileNav={() => setIsMobileNavOpen(prev => !prev)}
+        mobileToggleRef={mobileToggleRef}
+      />
       <div className={styles.mainBody}>
-        <Sidebar currentTab={currentTab} onSelectTab={setCurrentTab} />
+        <Sidebar
+          currentTab={currentTab}
+          onSelectTab={handleSelectTab}
+          isOpenMobile={isMobileNavOpen}
+          onCloseMobile={() => setIsMobileNavOpen(false)}
+          mobileToggleRef={mobileToggleRef}
+        />
         <main className={styles.mainContent}>
           <div className={styles.contentBody}>
-            {currentTab === 'dashboard' && <Dashboard onNavigate={setCurrentTab} />}
+            {currentTab === 'dashboard' && <Dashboard onNavigate={handleSelectTab} />}
             {currentTab === 'evidence' && (
               <EvidenceIntake
                 onNavigateToTimeline={handleNavigateToTimelineWithEvents}
@@ -101,18 +117,18 @@ export const AppContent: React.FC = () => {
             )}
             {currentTab === 'investigation' && (
               <InvestigationTimeline
-                onNavigate={setCurrentTab}
+                onNavigate={handleSelectTab}
                 incomingEvents={activeEvidenceEvents}
                 onNavigateToAnalysis={handleNavigateToAnalysisWithEvents}
               />
             )}
             {currentTab === 'cases' && (
               <InvestigationAnalysis
-                onNavigate={setCurrentTab}
+                onNavigate={handleSelectTab}
                 availableTimelineEvents={activeTimelineEvents}
                 initialCase={reopenedCase}
                 onSaveCase={handleSaveCase}
-                onBackToCases={() => { setReopenedCase(null); setCurrentTab('case-management'); }}
+                onBackToCases={() => { setReopenedCase(null); handleSelectTab('case-management'); }}
                 onOpenReport={handleOpenReport}
               />
             )}
@@ -129,7 +145,7 @@ export const AppContent: React.FC = () => {
                 cases={savedCases}
                 activeCase={reportCase}
                 activeTimelineEvents={activeTimelineEvents}
-                onNavigate={setCurrentTab}
+                onNavigate={handleSelectTab}
                 onSelectCase={setReportCase}
               />
             )}

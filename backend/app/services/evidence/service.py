@@ -293,10 +293,20 @@ class EvidenceService:
             sample_name = "sample-privilege-escalation.log"
 
         sample_dir = get_sample_data_dir()
-        # Prevent directory traversal
+        # Reject path traversal: sample_name must be a pure filename with no directory components
+        if (
+            Path(sample_name).name != sample_name
+            or "/" in sample_name
+            or "\\" in sample_name
+            or ".." in sample_name
+        ):
+            raise SampleNotFoundError(
+                f"Sample scenario '{sample_name}' does not exist in sample-data/linux/."
+            )
+
         target_path = (sample_dir / sample_name).resolve()
 
-        if not str(target_path).startswith(str(sample_dir)) or not target_path.is_file():
+        if not target_path.is_relative_to(sample_dir) or not target_path.is_file():
             raise SampleNotFoundError(
                 f"Sample scenario '{sample_name}' does not exist in sample-data/linux/."
             )

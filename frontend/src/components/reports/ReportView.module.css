@@ -392,10 +392,13 @@
   overflow-x: auto;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 
 .table {
   width: 100%;
+  min-width: 650px;
   border-collapse: collapse;
   font-size: 0.8125rem;
 }
@@ -449,6 +452,46 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .documentPaper {
+    padding: 1.25rem 1rem;
+    gap: 1.5rem;
+  }
+  .docTitle {
+    font-size: 1.35rem;
+  }
+  .actionBar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .actionLeft,
+  .actionRight {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .btnPrimary,
+  .btnSecondary {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .documentPaper {
+    padding: 0.85rem 0.65rem;
+  }
+  .docTitle {
+    font-size: 1.15rem;
+  }
+  .actionRight {
+    flex-direction: column;
+  }
+  .btnPrimary,
+  .btnSecondary {
+    width: 100%;
+  }
 }
 
 /* Print CSS */

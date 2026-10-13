@@ -45,3 +45,36 @@ async def test_async_health_endpoint():
         response = await ac.get("/health")
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
+
+def test_cors_headers_for_allowed_origins():
+    """
+    Test CORS preflight response for allowed origins including Render production frontend.
+    """
+    allowed_origins = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "https://ai-linux-investigation-frontend.onrender.com",
+    ]
+    for origin in allowed_origins:
+        headers = {
+            "Origin": origin,
+            "Access-Control-Request-Method": "GET",
+        }
+        response = client.options("/health", headers=headers)
+        assert response.status_code == 200
+        assert response.headers.get("access-control-allow-origin") == origin
+        assert response.headers.get("access-control-allow-credentials") == "true"
+
+
+def test_cors_headers_for_disallowed_origin():
+    """
+    Test CORS preflight does not allow untrusted origins.
+    """
+    headers = {
+        "Origin": "https://malicious-site.com",
+        "Access-Control-Request-Method": "GET",
+    }
+    response = client.options("/health", headers=headers)
+    assert response.headers.get("access-control-allow-origin") is None
