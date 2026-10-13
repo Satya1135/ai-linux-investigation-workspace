@@ -1,0 +1,4 @@
+Reflection word count: 200
+Infographic: self-contained HTML with inline CSS and embedded wordmark crop.
+Certificate: self-contained printable HTML with inline CSS and embedded wordmark crop.
+Certificate PDF: generated and rendered for visual inspection.
