@@ -9,8 +9,10 @@ import { InvestigationTimeline } from '../pages/InvestigationTimeline';
 import { InvestigationAnalysis } from '../pages/InvestigationAnalysis';
 import { CaseManagement } from '../pages/CaseManagement';
 import { Reports } from '../pages/Reports';
+import { Settings } from '../pages/Settings';
 import { readSavedCases, writeSavedCases, makeCaseId } from '../services/caseStorage';
-import { InvestigationResponse, SavedInvestigationCase, AnalystFindingReview } from '../types';
+import { readSettings, writeSettings, applySettingsToDOM } from '../services/settingsStorage';
+import { InvestigationResponse, SavedInvestigationCase, AnalystFindingReview, AppSettings } from '../types';
 import { NavSection, LogEventCandidate, TimelineEvent } from '../types';
 import styles from './App.module.css';
 
@@ -24,7 +26,16 @@ const queryClient = new QueryClient({
 });
 
 export const AppContent: React.FC = () => {
-  const [currentTab, setCurrentTab] = useState<NavSection>('dashboard');
+  const [settings, setSettings] = useState<AppSettings>(() => {
+    const loaded = readSettings();
+    applySettingsToDOM(loaded);
+    return loaded;
+  });
+
+  const [currentTab, setCurrentTab] = useState<NavSection>(() => {
+    const initialSettings = readSettings();
+    return initialSettings.defaultLandingPage || 'dashboard';
+  });
   const [isMobileNavOpen, setIsMobileNavOpen] = useState<boolean>(false);
   const mobileToggleRef = React.useRef<HTMLButtonElement>(null);
   const [activeEvidenceEvents, setActiveEvidenceEvents] = useState<LogEventCandidate[] | undefined>(undefined);
@@ -32,6 +43,18 @@ export const AppContent: React.FC = () => {
   const [savedCases, setSavedCases] = useState<SavedInvestigationCase[]>(() => readSavedCases());
   const [reopenedCase, setReopenedCase] = useState<SavedInvestigationCase | null>(null);
   const [reportCase, setReportCase] = useState<SavedInvestigationCase | null>(null);
+
+  const handleUpdateSettings = (newSettings: AppSettings) => {
+    setSettings(newSettings);
+    writeSettings(newSettings);
+  };
+
+  const handleClearAllCases = () => {
+    writeSavedCases([]);
+    setSavedCases([]);
+    setReopenedCase(null);
+    setReportCase(null);
+  };
 
   const handleSelectTab = (tab: NavSection) => {
     setCurrentTab(tab);
@@ -113,6 +136,7 @@ export const AppContent: React.FC = () => {
             {currentTab === 'evidence' && (
               <EvidenceIntake
                 onNavigateToTimeline={handleNavigateToTimelineWithEvents}
+                initialMode={settings.defaultIntakeMode}
               />
             )}
             {currentTab === 'investigation' && (
@@ -147,6 +171,16 @@ export const AppContent: React.FC = () => {
                 activeTimelineEvents={activeTimelineEvents}
                 onNavigate={handleSelectTab}
                 onSelectCase={setReportCase}
+              />
+            )}
+            {currentTab === 'settings' && (
+              <Settings
+                cases={savedCases}
+                onCasesChange={setSavedCases}
+                onClearAllCases={handleClearAllCases}
+                settings={settings}
+                onUpdateSettings={handleUpdateSettings}
+                onNavigate={handleSelectTab}
               />
             )}
           </div>

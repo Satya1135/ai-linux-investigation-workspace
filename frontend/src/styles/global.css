@@ -104,6 +104,44 @@ code, pre, .font-mono {
   }
 }
 
+/* User-controlled Reduced Motion Preference */
+html[data-reduced-motion="true"] *,
+html[data-reduced-motion="true"] *::before,
+html[data-reduced-motion="true"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* User-controlled Interface Density */
+html[data-density="compact"] {
+  --header-height: 56px;
+}
+
+html[data-density="compact"] body {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+html[data-density="compact"] input,
+html[data-density="compact"] select,
+html[data-density="compact"] textarea {
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+}
+
+/* User-controlled Interface Text Size */
+html[data-text-size="large"] {
+  font-size: 16px;
+}
+
+html[data-text-size="large"] body {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+
 /* Print Media Overrides */
 @media print {
   html,

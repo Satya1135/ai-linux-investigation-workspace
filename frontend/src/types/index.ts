@@ -245,3 +245,19 @@ export interface CaseReportData {
   hasTimeline: boolean;
   limitations: string[];
 }
+
+/**
+ * Settings and Preferences Types
+ */
+export type InterfaceDensity = 'standard' | 'compact';
+export type InterfaceTextSize = 'standard' | 'large';
+export type LandingPage = 'dashboard' | 'evidence';
+export type InitialIntakeMode = 'sample' | 'upload' | 'paste';
+
+export interface AppSettings {
+  density: InterfaceDensity;
+  reducedMotion: boolean;
+  textSize: InterfaceTextSize;
+  defaultLandingPage: LandingPage;
+  defaultIntakeMode: InitialIntakeMode;
+}

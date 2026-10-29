@@ -52,10 +52,11 @@ interface ParsedSocEvent {
 
 interface EvidenceIntakeProps {
   onNavigateToTimeline?: (events: LogEventCandidate[]) => void;
+  initialMode?: IntakeMode;
 }
 
-export const EvidenceIntake: React.FC<EvidenceIntakeProps> = ({ onNavigateToTimeline }) => {
-  const [selectedMode, setSelectedMode] = useState<IntakeMode>('sample');
+export const EvidenceIntake: React.FC<EvidenceIntakeProps> = ({ onNavigateToTimeline, initialMode }) => {
+  const [selectedMode, setSelectedMode] = useState<IntakeMode>(initialMode || 'sample');
   const [evidence, setEvidence] = useState<EvidenceResponse | null>(null);
 
   // Loading & error states

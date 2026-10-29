@@ -91,7 +91,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Settings',
       icon: Sliders,
       badge: 'Config',
-      disabled: true,
+      disabled: false,
     },
   ];
 

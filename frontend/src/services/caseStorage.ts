@@ -30,3 +30,57 @@ export function makeCaseId(): string {
   const suffix = Math.random().toString(36).slice(2, 7).toUpperCase();
   return `LIN-${stamp}-${suffix}`;
 }
+
+/**
+ * Type-guard validating whether an unknown object conforms to SavedInvestigationCase.
+ */
+export function isValidCase(item: unknown): item is SavedInvestigationCase {
+  if (!item || typeof item !== 'object') return false;
+  const c = item as Record<string, unknown>;
+  return (
+    typeof c.caseId === 'string' &&
+    c.caseId.trim().length > 0 &&
+    typeof c.caseName === 'string' &&
+    typeof c.createdAt === 'string' &&
+    typeof c.updatedAt === 'string' &&
+    typeof c.verdict === 'string' &&
+    typeof c.totalEventsAnalyzed === 'number' &&
+    typeof c.originalAnalysis === 'object' &&
+    c.originalAnalysis !== null &&
+    Array.isArray(c.reviews)
+  );
+}
+
+/**
+ * Remove all saved cases from browser localStorage.
+ */
+export function clearAllSavedCasesFromStorage(): void {
+  try {
+    window.localStorage.removeItem(STORAGE_KEY);
+  } catch (error) {
+    console.error('Failed to clear cases from localStorage:', error);
+  }
+}
+
+/**
+ * Export saved cases array as a timestamped JSON file download.
+ */
+export function exportCasesToJson(cases: SavedInvestigationCase[]): void {
+  const payload = {
+    schemaVersion: '1.0.0',
+    exportedAt: new Date().toISOString(),
+    totalCases: cases.length,
+    cases,
+  };
+  const jsonString = JSON.stringify(payload, null, 2);
+  const blob = new Blob([jsonString], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  anchor.href = url;
+  anchor.download = `linux-investigation-cases-backup-${timestamp}.json`;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(url);
+}
